@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment & Secrets (NEVER commit production credentials or keys)
+.env
+.env.local
+.env.production
+.env.*.local
+*.key
+*.pem
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Local database backups & exports containing student PII
+backups/
+*.sql
+*.sql.gz
+*.enc
+*.dump
+exports_output/
+uploads/student-photos/*
+!uploads/student-photos/.gitkeep
+
+# Logs & OS artifacts
+logs/
+*.log
+npm-debug.log*
+Thumbs.db
+.DS_Store
+playwright-report/
+test-results/
+coverage/

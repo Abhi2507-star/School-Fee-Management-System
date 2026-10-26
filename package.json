@@ -1,0 +1,47 @@
+{
+  "name": "swami-vivekanand-fee-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-First Production School Fee Management System (SFMS) for Swami Vivekanand Sikshan Sansthan (LKG to Class 12)",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "app": "node scripts/serve-app.js",
+    "dev:web": "npm run dev --workspace=@svss/web",
+    "dev": "concurrently \"npm run dev --workspace=@svss/api\" \"npm run dev --workspace=@svss/web\"",
+    "build": "npm run build --workspace=@svss/api && npm run build --workspace=@svss/web",
+    "start": "npm run start --workspace=@svss/api",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:migrate:dev": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "node --loader ./tests/ts-loader.mjs --test tests/run-all-tests.mjs",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test tests/e2e",
+    "backup:now": "node scripts/backup/backup-db.js",
+    "restore:verify": "node scripts/restore/restore-db.js --verify-only"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.48.2",
+    "@types/node": "20.17.6",
+    "@types/supertest": "6.0.2",
+    "concurrently": "9.1.0",
+    "prisma": "5.22.0",
+    "supertest": "7.0.0",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3",
+    "vitest": "2.1.5"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0"
+  },
+  "type": "module"
+}
