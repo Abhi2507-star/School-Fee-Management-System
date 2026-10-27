@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Improvement 6: Suppress any environment-injected floating "Ask Gemini" button/overlay inside SFMS */
+[aria-label*="Ask Gemini" i],
+[title*="Ask Gemini" i],
+[data-gemini-overlay],
+#ask-gemini-floating-btn,
+.ask-gemini-overlay,
+.gemini-floating-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
