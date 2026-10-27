@@ -8,7 +8,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { PrismaClient, RoleCode } from '@prisma/client';
 import { hashSessionToken, verifyCsrfToken } from '../security/session-csrf.js';
-import { CANONICAL_PERMISSIONS } from '../../../../prisma/seed.js';
+import { CANONICAL_PERMISSIONS } from '../constants/permissions.js';
 
 export const TWO_ROLE_PERMISSIONS: Record<'ADMIN' | 'FEE_COLLECTOR', string[]> = {
   ADMIN: CANONICAL_PERMISSIONS.map((p) => p.code),

@@ -113,8 +113,9 @@ export function createReceiptsRouter(prisma: PrismaClient) {
   // GET /api/v1/payments/:id/receipt — Retrieve HTML or PDF Receipt
   router.get('/payments/:id/receipt', requireAuth, requirePermission('RECEIPT_PRINT'), async (req, res, next) => {
     try {
+      const paymentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const receipt = await prisma.receipt.findUnique({
-        where: { paymentId: req.params.id },
+        where: { paymentId },
       });
       if (!receipt) {
         res.status(404).json({ error: 'RECEIPT_NOT_FOUND', message: 'Receipt not found for this payment.' });

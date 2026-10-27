@@ -73,8 +73,9 @@ export function createRefundsReversalsRouter(prisma: PrismaClient) {
   router.post('/payments/:id/reversal-requests', requireAuth, requirePermission('REVERSAL_REQUEST'), async (req, res, next) => {
     try {
       const { reason } = z.object({ reason: z.string().min(10).max(400) }).parse(req.body);
+      const paymentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const payment = await prisma.payment.findUniqueOrThrow({
-        where: { id: req.params.id },
+        where: { id: paymentId },
         include: { receipt: true, reversals: true },
       });
 
@@ -131,9 +132,10 @@ export function createRefundsReversalsRouter(prisma: PrismaClient) {
 
       const settings = await prisma.schoolSettings.findUnique({ where: { id: 1 } });
 
+      const reversalId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const updatedReversal = await prisma.$transaction(async (tx) => {
         const rev = await tx.reversal.findUniqueOrThrow({
-          where: { id: req.params.id },
+          where: { id: reversalId },
           include: { payment: { include: { allocations: true, receipt: true } } },
         });
 
@@ -293,9 +295,10 @@ export function createRefundsReversalsRouter(prisma: PrismaClient) {
         reviewNotes: z.string().min(3).max(300),
       }).parse(req.body);
 
+      const refundId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const updated = await prisma.$transaction(async (tx) => {
         const refund = await tx.refund.findUniqueOrThrow({
-          where: { id: req.params.id },
+          where: { id: refundId },
           include: { payment: { include: { refunds: true } } },
         });
 

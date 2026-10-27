@@ -427,10 +427,11 @@ export function createAuthRouter(prisma: PrismaClient) {
   router.patch('/staff/:id/display-name', requireAuth, requirePermission('STAFF_MANAGE'), async (req, res, next) => {
     try {
       const { fullName } = updateDisplayNameSchema.parse(req.body);
+      const staffId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const updated = await prisma.$transaction(async (tx) => {
-        const before = await tx.user.findUniqueOrThrow({ where: { id: req.params.id } });
+        const before = await tx.user.findUniqueOrThrow({ where: { id: staffId } });
         const user = await tx.user.update({
-          where: { id: req.params.id },
+          where: { id: staffId },
           data: { fullName },
         });
         await recordAuditLog(tx, {
@@ -458,14 +459,15 @@ export function createAuthRouter(prisma: PrismaClient) {
   router.patch('/staff/:id/status', requireAuth, requirePermission('STAFF_MANAGE'), async (req, res, next) => {
     try {
       const { isActive } = z.object({ isActive: z.boolean() }).parse(req.body);
-      if (req.params.id === req.staff!.id && !isActive) {
+      const staffId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      if (staffId === req.staff!.id && !isActive) {
         res.status(400).json({ error: 'SELF_DEACTIVATION_BLOCKED', message: 'You cannot deactivate your own active administrator account.' });
         return;
       }
 
       const updated = await prisma.$transaction(async (tx) => {
         const user = await tx.user.update({
-          where: { id: req.params.id },
+          where: { id: staffId },
           data: { isActive },
         });
         if (!isActive) {
@@ -498,10 +500,11 @@ export function createAuthRouter(prisma: PrismaClient) {
     try {
       const { newPassword } = resetPasswordSchema.parse(req.body);
       const passwordHash = await hashPassword(newPassword);
+      const staffId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
       const updated = await prisma.$transaction(async (tx) => {
         const user = await tx.user.update({
-          where: { id: req.params.id },
+          where: { id: staffId },
           data: {
             passwordHash,
             failedLoginAttempts: 0,

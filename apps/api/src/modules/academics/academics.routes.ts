@@ -80,9 +80,10 @@ export function createAcademicsRouter(prisma: PrismaClient) {
         roomNumber: z.string().optional(),
       });
       const parsed = schema.parse(req.body);
+      const classId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const section = await prisma.section.create({
         data: {
-          classId: req.params.id,
+          classId,
           name: parsed.name,
           capacity: parsed.capacity,
           roomNumber: parsed.roomNumber,

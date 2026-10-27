@@ -351,8 +351,9 @@ export function createPaymentsRouter(prisma: PrismaClient) {
   // GET /api/v1/payments/reconcile/:idempotencyKey — Reconcile Uncertain Payment Outcome (Problem 8)
   router.get('/reconcile/:idempotencyKey', requireAuth, requirePermission('PAYMENT_COLLECT'), async (req, res, next) => {
     try {
+      const idempotencyKey = Array.isArray(req.params.idempotencyKey) ? req.params.idempotencyKey[0] : req.params.idempotencyKey;
       const payment = await prisma.payment.findUnique({
-        where: { idempotencyKey: req.params.idempotencyKey },
+        where: { idempotencyKey },
         include: {
           receipt: true,
           allocations: { include: { studentCharge: { include: { feeHead: true } } } },

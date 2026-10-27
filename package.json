@@ -16,7 +16,7 @@
     "app": "node scripts/serve-app.js",
     "dev:web": "npm run dev --workspace=@svss/web",
     "dev": "concurrently \"npm run dev --workspace=@svss/api\" \"npm run dev --workspace=@svss/web\"",
-    "build": "npm run build --workspace=@svss/web",
+    "build": "npm run build --workspace=@svss/api && npm run build --workspace=@svss/web",
     "build:web": "npm run build --workspace=@svss/web",
     "build:api": "npm run build --workspace=@svss/api",
     "start": "npm run start --workspace=@svss/api",

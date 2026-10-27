@@ -4,7 +4,7 @@ import { PrismaClient, StudentStatus } from '@prisma/client';
 import { createAuthMiddleware } from '../../middleware/auth.middleware.js';
 import { recordAuditLog } from '../../services/audit.service.js';
 import { calculateStudentLedger } from '../../services/ledger-engine.js';
-import { toPaise } from '../../utils/money.js';
+import { toPaise, fromPaise } from '../../utils/money.js';
 
 export const DUMMY_TEST_ADMISSION_NUMBERS = [
   'SVSS/2026/001',
@@ -75,13 +75,16 @@ export function createStudentsRouter(prisma: PrismaClient) {
 
         const studentIds = dummyStudents.map((s) => s.id);
         if (studentIds.length > 0) {
-          await tx.paymentAllocation.deleteMany({ where: { studentCharge: { studentId: { in: studentIds } } } });
-          await tx.refundRecord.deleteMany({ where: { studentId: { in: studentIds } } });
-          await tx.paymentReversal.deleteMany({ where: { payment: { studentId: { in: studentIds } } } });
+          await tx.paymentAllocation.deleteMany({ where: { studentCharge: { enrollment: { studentId: { in: studentIds } } } } });
+          await tx.refund.deleteMany({ where: { payment: { studentId: { in: studentIds } } } });
+          await tx.reversal.deleteMany({ where: { payment: { studentId: { in: studentIds } } } });
+          await tx.receipt.deleteMany({ where: { studentId: { in: studentIds } } });
+          await tx.chequeDetail.deleteMany({ where: { payment: { studentId: { in: studentIds } } } });
+          await tx.studentCredit.deleteMany({ where: { studentId: { in: studentIds } } });
           await tx.payment.deleteMany({ where: { studentId: { in: studentIds } } });
-          await tx.studentConcession.deleteMany({ where: { studentId: { in: studentIds } } });
-          await tx.studentCharge.deleteMany({ where: { studentId: { in: studentIds } } });
-          await tx.studentEnrollment.deleteMany({ where: { studentId: { in: studentIds } } });
+          await tx.concession.deleteMany({ where: { studentId: { in: studentIds } } });
+          await tx.studentCharge.deleteMany({ where: { enrollment: { studentId: { in: studentIds } } } });
+          await tx.enrollment.deleteMany({ where: { studentId: { in: studentIds } } });
           await tx.student.deleteMany({ where: { id: { in: studentIds } } });
         }
 
@@ -91,6 +94,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
           actorRole: req.staff!.roles.join(','),
           action: 'DUMMY_STUDENTS_PURGED',
           entityType: 'STUDENT',
+          entityId: studentIds.join(',') || 'ALL_DUMMY',
           summary: `Safely removed ${dummyStudents.length} dummy test student record(s) while preserving school settings, sessions, classes, fee structures, and staff accounts.`,
           ipAddress: req.ip,
         });
@@ -168,18 +172,24 @@ export function createStudentsRouter(prisma: PrismaClient) {
         include: {
           enrollments: {
             where: academicYearId ? { academicYearId } : undefined,
-            include: { academicYear: true, schoolClass: true, section: true },
-            orderBy: { createdAt: 'desc' },
-          },
-          charges: {
-            where: academicYearId ? { enrollment: { academicYearId } } : undefined,
             include: {
-              feeHead: true,
-              allocations: {
-                where: { isActive: true },
-                include: { payment: true },
+              academicYear: true,
+              schoolClass: true,
+              section: true,
+              studentCharges: {
+                include: {
+                  feeHead: true,
+                  paymentAllocations: {
+                    where: { isActive: true },
+                    include: { payment: true },
+                  },
+                },
               },
             },
+            orderBy: { createdAt: 'desc' },
+          },
+          studentCredits: {
+            where: { isActive: true },
           },
         },
         orderBy: { admissionNumber: 'asc' },
@@ -188,11 +198,14 @@ export function createStudentsRouter(prisma: PrismaClient) {
 
       const includeNotes = canViewRestrictedNotes(req.staff!.roles);
       const formatted = students.map((st) => {
+        const charges = st.enrollments.flatMap((e) => e.studentCharges);
+        const creditPaise = st.studentCredits.reduce((acc, c) => acc + toPaise(c.remainingAmount.toString()), 0);
+        const advanceCreditBalance = fromPaise(creditPaise);
         const ledger = calculateStudentLedger(
           st.id,
-          st.charges.map((c) => ({
+          charges.map((c) => ({
             id: c.id,
-            studentId: c.studentId,
+            studentId: st.id,
             enrollmentId: c.enrollmentId,
             feeHeadCode: c.feeHead.code,
             feeHeadName: c.feeHead.name,
@@ -204,18 +217,18 @@ export function createStudentsRouter(prisma: PrismaClient) {
             adjustmentAmount: c.adjustmentAmount.toString(),
             status: c.status,
           })),
-          st.charges.flatMap((c) =>
-            c.allocations.map((a) => ({
+          charges.flatMap((c) =>
+            c.paymentAllocations.map((a) => ({
               id: a.id,
               paymentId: a.paymentId,
               studentChargeId: a.studentChargeId,
               allocatedAmount: a.allocatedAmount.toString(),
               isActive: a.isActive,
-              paymentStatus: a.payment.status as 'COMPLETED' | 'REVERSED',
+              paymentStatus: a.payment.status,
               paymentMethod: a.payment.paymentMethod,
             }))
           ),
-          st.advanceCreditBalance.toString()
+          advanceCreditBalance
         );
 
         const activeEnrollment = st.enrollments[0] || null;
@@ -225,10 +238,11 @@ export function createStudentsRouter(prisma: PrismaClient) {
           fullName: st.fullName,
           dateOfBirth: st.dateOfBirth.toISOString().slice(0, 10),
           guardianName: st.guardianName,
+          guardianRelation: st.guardianRelationship,
           primaryContactNumber: st.primaryContactNumber,
           address: st.address,
           status: st.status,
-          advanceCreditBalance: st.advanceCreditBalance.toString(),
+          advanceCreditBalance,
           restrictedNotes: includeNotes ? st.restrictedNotes : undefined,
           currentEnrollment: activeEnrollment
             ? {
@@ -282,24 +296,25 @@ export function createStudentsRouter(prisma: PrismaClient) {
             dateOfBirth: new Date(parsed.dateOfBirth),
             gender: parsed.gender,
             guardianName: parsed.guardianName,
-            guardianRelation: parsed.guardianRelation || 'Father',
+            guardianRelationship: parsed.guardianRelation || 'Father',
             primaryContactNumber: parsed.primaryContactNumber,
             secondaryContactNumber: parsed.secondaryContactNumber,
             address: parsed.address,
             admissionDate: new Date(parsed.admissionDate),
             status: 'ACTIVE',
             restrictedNotes: parsed.restrictedNotes,
+            createdById: req.staff!.id,
           },
         });
 
-        const enrollment = await tx.studentEnrollment.create({
+        const enrollment = await tx.enrollment.create({
           data: {
             studentId: student.id,
             academicYearId: parsed.academicYearId,
             classId: parsed.classId,
             sectionId: parsed.sectionId,
             rollNumber: parsed.rollNumber,
-            enrollmentType: parsed.enrollmentType,
+            isNewAdmission: parsed.enrollmentType === 'NEW_ADMISSION',
             status: 'ACTIVE',
           },
           include: {
@@ -315,7 +330,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
           where: {
             academicYearId: parsed.academicYearId,
             classId: parsed.classId,
-            isActive: true,
+            isCurrentVersion: true,
           },
           orderBy: { version: 'desc' },
           include: {
@@ -340,19 +355,15 @@ export function createStudentsRouter(prisma: PrismaClient) {
 
             const charge = await tx.studentCharge.create({
               data: {
-                studentId: student.id,
                 enrollmentId: enrollment.id,
+                academicYearId: enrollment.academicYearId,
                 feeStructureItemId: item.id,
                 feeHeadId: item.feeHeadId,
                 feePeriodCode: periodCode,
                 feePeriodLabel: periodLabel,
+                description: item.feeHead.name,
                 dueDate: new Date(`${enrollment.academicYear.startDate.toISOString().slice(0, 7)}-${String(item.dueDayOfMonth || 10).padStart(2, '0')}`),
                 originalAmount: item.amount.toString(),
-                concessionAmount: '0.00',
-                adjustmentAmount: '0.00',
-                netPayableAmount: item.amount.toString(),
-                paidAmount: '0.00',
-                outstandingAmount: item.amount.toString(),
                 status: 'UNPAID',
               },
             });
@@ -367,18 +378,14 @@ export function createStudentsRouter(prisma: PrismaClient) {
             const defaultTuition = '1500.00';
             const charge = await tx.studentCharge.create({
               data: {
-                studentId: student.id,
                 enrollmentId: enrollment.id,
+                academicYearId: enrollment.academicYearId,
                 feeHeadId: tuitionHead.id,
                 feePeriodCode: `${enrollment.academicYear.code}-APR`,
                 feePeriodLabel: `April (${enrollment.academicYear.code})`,
+                description: tuitionHead.name,
                 dueDate: new Date(),
                 originalAmount: defaultTuition,
-                concessionAmount: '0.00',
-                adjustmentAmount: '0.00',
-                netPayableAmount: defaultTuition,
-                paidAmount: '0.00',
-                outstandingAmount: defaultTuition,
                 status: 'UNPAID',
               },
             });
@@ -393,7 +400,6 @@ export function createStudentsRouter(prisma: PrismaClient) {
           action: 'STUDENT_CREATED',
           entityType: 'STUDENT',
           entityId: student.id,
-          studentId: student.id,
           summary: `Registered student ${student.fullName} (${student.admissionNumber}) in ${enrollment.schoolClass.name}-${enrollment.section.name} for session ${enrollment.academicYear.code} with ${createdCharges.length} initial fee charge(s).`,
           ipAddress: req.ip,
         });
@@ -410,46 +416,47 @@ export function createStudentsRouter(prisma: PrismaClient) {
   // Complete 9-Tab Student Profile & Ledger Endpoint
   router.get('/:id/profile', requireAuth, requirePermission('STUDENT_VIEW'), async (req, res, next) => {
     try {
-      const studentId = req.params.id;
-      const academicYearId = (req.query.academicYearId as string) || undefined;
+      const studentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const academicYearId = typeof req.query.academicYearId === 'string' ? req.query.academicYearId : undefined;
 
       const student = await prisma.student.findUnique({
         where: { id: studentId },
         include: {
           enrollments: {
-            include: { academicYear: true, schoolClass: true, section: true },
-            orderBy: { createdAt: 'desc' },
-          },
-          charges: {
-            where: academicYearId ? { enrollment: { academicYearId } } : undefined,
+            where: academicYearId ? { academicYearId } : undefined,
             include: {
-              feeHead: true,
-              enrollment: { include: { academicYear: true, schoolClass: true, section: true } },
-              allocations: {
-                include: { payment: true },
+              academicYear: true,
+              schoolClass: true,
+              section: true,
+              studentCharges: {
+                include: {
+                  feeHead: true,
+                  paymentAllocations: {
+                    include: { payment: true },
+                  },
+                },
+                orderBy: { dueDate: 'asc' },
               },
             },
-            orderBy: { dueDate: 'asc' },
+            orderBy: { createdAt: 'desc' },
           },
           concessions: {
+            where: academicYearId ? { enrollment: { academicYearId } } : undefined,
             include: { studentCharge: { include: { feeHead: true } } },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { requestedAt: 'desc' },
           },
           payments: {
             where: academicYearId ? { academicYearId } : undefined,
             include: {
               allocations: { include: { studentCharge: { include: { feeHead: true } } } },
+              receipt: true,
               reversals: true,
               refunds: true,
             },
             orderBy: { paidAt: 'desc' },
           },
-          refunds: {
-            orderBy: { createdAt: 'desc' },
-          },
-          auditLogs: {
-            orderBy: { createdAt: 'desc' },
-            take: 100,
+          studentCredits: {
+            where: { isActive: true },
           },
         },
       });
@@ -459,11 +466,21 @@ export function createStudentsRouter(prisma: PrismaClient) {
         return;
       }
 
+      const auditLogs = await prisma.auditLog.findMany({
+        where: { entityType: 'STUDENT', entityId: student.id },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+
+      const charges = student.enrollments.flatMap((e) => e.studentCharges);
+      const creditPaise = student.studentCredits.reduce((acc, c) => acc + toPaise(c.remainingAmount.toString()), 0);
+      const advanceCreditBalance = fromPaise(creditPaise);
+
       const ledger = calculateStudentLedger(
         student.id,
-        student.charges.map((c) => ({
+        charges.map((c) => ({
           id: c.id,
-          studentId: c.studentId,
+          studentId: student.id,
           enrollmentId: c.enrollmentId,
           feeHeadCode: c.feeHead.code,
           feeHeadName: c.feeHead.name,
@@ -475,20 +492,21 @@ export function createStudentsRouter(prisma: PrismaClient) {
           adjustmentAmount: c.adjustmentAmount.toString(),
           status: c.status,
         })),
-        student.charges.flatMap((c) =>
-          c.allocations.map((a) => ({
+        charges.flatMap((c) =>
+          c.paymentAllocations.map((a) => ({
             id: a.id,
             paymentId: a.paymentId,
             studentChargeId: a.studentChargeId,
             allocatedAmount: a.allocatedAmount.toString(),
             isActive: a.isActive,
-            paymentStatus: a.payment.status as 'COMPLETED' | 'REVERSED',
+            paymentStatus: a.payment.status,
             paymentMethod: a.payment.paymentMethod,
           }))
         ),
-        student.advanceCreditBalance.toString()
+        advanceCreditBalance
       );
 
+      const allRefunds = student.payments.flatMap((p) => p.refunds);
       const includeNotes = canViewRestrictedNotes(req.staff!.roles);
 
       res.json({
@@ -499,21 +517,21 @@ export function createStudentsRouter(prisma: PrismaClient) {
           dateOfBirth: student.dateOfBirth.toISOString().slice(0, 10),
           gender: student.gender,
           guardianName: student.guardianName,
-          guardianRelation: student.guardianRelation,
+          guardianRelation: student.guardianRelationship,
           primaryContactNumber: student.primaryContactNumber,
           secondaryContactNumber: student.secondaryContactNumber,
           address: student.address,
           admissionDate: student.admissionDate.toISOString().slice(0, 10),
           status: student.status,
-          advanceCreditBalance: student.advanceCreditBalance.toString(),
+          advanceCreditBalance,
           restrictedNotes: includeNotes ? student.restrictedNotes : undefined,
         },
         academicHistory: student.enrollments,
         ledger,
         payments: student.payments,
         concessions: student.concessions,
-        refunds: student.refunds,
-        auditHistory: student.auditLogs,
+        refunds: allRefunds,
+        auditHistory: auditLogs,
       });
     } catch (err) {
       next(err);
@@ -523,6 +541,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
   // Update student profile
   router.patch('/:id', requireAuth, requirePermission('STUDENT_WRITE'), async (req, res, next) => {
     try {
+      const studentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const schema = z.object({
         admissionNumber: z.string().trim().min(2).max(50).optional(),
         fullName: z.string().trim().min(2).max(150).optional(),
@@ -530,7 +549,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
         primaryContactNumber: z.string().trim().regex(/^[0-9+\-\s]{10,15}$/).optional(),
         secondaryContactNumber: z.string().max(20).optional().nullable(),
         address: z.string().trim().min(3).max(500).optional(),
-        status: z.enum(['ACTIVE', 'PROMOTED', 'TRANSFERRED', 'ALUMNI', 'WITHDRAWN', 'ARCHIVED']).optional(),
+        status: z.enum(['ACTIVE', 'PROMOTED', 'TRANSFERRED', 'ALUMNI', 'WITHDRAWN', 'INACTIVE']).optional(),
         restrictedNotes: z.string().max(1000).optional().nullable(),
       });
       const parsed = schema.parse(req.body);
@@ -538,7 +557,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
       if (parsed.admissionNumber) {
         const dup = await prisma.student.findFirst({
           where: {
-            id: { not: req.params.id },
+            id: { not: studentId },
             admissionNumber: { equals: parsed.admissionNumber, mode: 'insensitive' },
           },
         });
@@ -552,9 +571,9 @@ export function createStudentsRouter(prisma: PrismaClient) {
       }
 
       const updated = await prisma.$transaction(async (tx) => {
-        const before = await tx.student.findUniqueOrThrow({ where: { id: req.params.id } });
+        const before = await tx.student.findUniqueOrThrow({ where: { id: studentId } });
         const after = await tx.student.update({
-          where: { id: req.params.id },
+          where: { id: studentId },
           data: parsed,
         });
 
@@ -565,10 +584,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
           action: 'STUDENT_UPDATED',
           entityType: 'STUDENT',
           entityId: after.id,
-          studentId: after.id,
           summary: `Updated profile for ${after.fullName} (${after.admissionNumber})`,
-          beforeState: before,
-          afterState: after,
           ipAddress: req.ip,
         });
         return after;
@@ -583,6 +599,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
   // Promote student to next class & academic year without losing history
   router.post('/:id/promote', requireAuth, requirePermission('ACADEMIC_MANAGE'), async (req, res, next) => {
     try {
+      const studentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const schema = z.object({
         targetAcademicYearId: z.string().uuid(),
         targetClassId: z.string().uuid(),
@@ -592,19 +609,19 @@ export function createStudentsRouter(prisma: PrismaClient) {
       const parsed = schema.parse(req.body);
 
       const enrollment = await prisma.$transaction(async (tx) => {
-        await tx.studentEnrollment.updateMany({
-          where: { studentId: req.params.id, status: 'ACTIVE' },
+        await tx.enrollment.updateMany({
+          where: { studentId, status: 'ACTIVE' },
           data: { status: 'PROMOTED' },
         });
 
-        const created = await tx.studentEnrollment.create({
+        const created = await tx.enrollment.create({
           data: {
-            studentId: req.params.id,
+            studentId,
             academicYearId: parsed.targetAcademicYearId,
             classId: parsed.targetClassId,
             sectionId: parsed.targetSectionId,
             rollNumber: parsed.rollNumber,
-            enrollmentType: 'PROMOTED',
+            isNewAdmission: false,
             status: 'ACTIVE',
           },
         });
@@ -616,8 +633,7 @@ export function createStudentsRouter(prisma: PrismaClient) {
           action: 'STUDENT_PROMOTED',
           entityType: 'STUDENT_ENROLLMENT',
           entityId: created.id,
-          studentId: req.params.id,
-          summary: `Promoted student ${req.params.id} to new academic session ${parsed.targetAcademicYearId}`,
+          summary: `Promoted student ${studentId} to new academic session ${parsed.targetAcademicYearId}`,
           ipAddress: req.ip,
         });
         return created;

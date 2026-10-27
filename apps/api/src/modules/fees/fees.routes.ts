@@ -383,9 +383,10 @@ export function createFeesRouter(prisma: PrismaClient) {
         reviewNotes: z.string().optional(),
       }).parse(req.body);
 
+      const concessionId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const updated = await prisma.$transaction(async (tx) => {
         const conc = await tx.concession.findUniqueOrThrow({
-          where: { id: req.params.id },
+          where: { id: concessionId },
           include: { studentCharge: true },
         });
 

@@ -13,6 +13,7 @@
  * 4. Explicitly tracks unallocated remainders as StudentCredit (advance balance).
  */
 import { toPaise, fromPaise, amountToIndianWords } from '../utils/money.js';
+import type { PaymentStatus, PaymentMethod } from '@prisma/client';
 
 export const SUPPORTED_PAYMENT_METHODS = ['CASH', 'UPI'] as const;
 export type SupportedPaymentMethod = (typeof SUPPORTED_PAYMENT_METHODS)[number];
@@ -56,8 +57,8 @@ export interface AllocationRecordInput {
   studentChargeId: string;
   allocatedAmount: string;
   isActive: boolean;
-  paymentStatus: 'COMPLETED' | 'REVERSED' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
-  paymentMethod: 'CASH' | 'UPI';
+  paymentStatus: PaymentStatus | 'COMPLETED' | 'REVERSED' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
+  paymentMethod: PaymentMethod | 'CASH' | 'UPI';
 }
 
 export interface ComputedChargeBalance {
