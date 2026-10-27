@@ -8,6 +8,8 @@ export function getCsrfToken(): string {
   return csrfTokenMemory;
 }
 
+const API_BASE_URL = String((import.meta as any).env?.VITE_API_URL || '').replace(/\/+$/, '');
+
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
   if (!headers.has('Content-Type') && options.body) {
@@ -17,7 +19,7 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
     headers.set('X-CSRF-Token', csrfTokenMemory);
   }
 
-  const response = await fetch(`/api/v1${path}`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1${path}`, {
     ...options,
     headers,
     credentials: 'include',
