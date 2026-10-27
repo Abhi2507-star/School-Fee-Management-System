@@ -260,10 +260,15 @@ export function createAuthRouter(prisma: PrismaClient) {
         ipAddress: req.ip,
       });
 
+      const cookieSameSite = (process.env.COOKIE_SAME_SITE as 'none' | 'lax' | 'strict') ||
+        (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
+      const cookieSecure = process.env.COOKIE_SECURE === 'true' ||
+        (process.env.NODE_ENV === 'production' && cookieSameSite === 'none');
+
       res.cookie('svss_session', rawSessionToken, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.COOKIE_SECURE === 'true',
+        sameSite: cookieSameSite,
+        secure: cookieSecure,
         expires: expiresAt,
         path: '/',
       });
@@ -305,7 +310,12 @@ export function createAuthRouter(prisma: PrismaClient) {
         ipAddress: req.ip,
       });
 
-      res.clearCookie('svss_session', { path: '/' });
+      const cookieSameSite = (process.env.COOKIE_SAME_SITE as 'none' | 'lax' | 'strict') ||
+        (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
+      const cookieSecure = process.env.COOKIE_SECURE === 'true' ||
+        (process.env.NODE_ENV === 'production' && cookieSameSite === 'none');
+
+      res.clearCookie('svss_session', { path: '/', sameSite: cookieSameSite, secure: cookieSecure });
       res.json({ message: 'Signed out.', redirectTo: '/login' });
     } catch (err) {
       next(err);

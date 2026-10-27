@@ -26,15 +26,17 @@ import { createHealthRouter } from './modules/health/health.routes.js';
 export function createApp(prisma: PrismaClient) {
   const app = express();
 
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000')
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173')
     .split(',')
-    .map((o) => o.trim());
+    .map((o) => o.trim().replace(/\/+$/, ''));
 
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) return callback(null, true);
+        const normalized = origin.replace(/\/+$/, '');
+        if (allowedOrigins.includes(normalized) || allowedOrigins.includes('*')) {
           callback(null, true);
         } else {
           callback(new Error(`Origin ${origin} not permitted by school CORS policy.`));
