@@ -26,9 +26,21 @@ import { createHealthRouter } from './modules/health/health.routes.js';
 export function createApp(prisma: PrismaClient) {
   const app = express();
 
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173')
-    .split(',')
-    .map((o) => o.trim().replace(/\/+$/, ''));
+  app.set('trust proxy', 1);
+
+  const defaultOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'https://schoolfeemanagementsystem-9ww6umd0a-abhisheks-projects-f87b48dd.vercel.app',
+    'https://*.vercel.app',
+  ];
+
+  const envOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim().replace(/\/+$/, ''))
+    : [];
+
+  const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
@@ -36,7 +48,16 @@ export function createApp(prisma: PrismaClient) {
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);
         const normalized = origin.replace(/\/+$/, '');
-        if (allowedOrigins.includes(normalized) || allowedOrigins.includes('*')) {
+        const isAllowed = allowedOrigins.some((pattern) => {
+          if (pattern === '*' || pattern === normalized) return true;
+          if (pattern.includes('*')) {
+            const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+            return new RegExp(`^${escaped}$`).test(normalized);
+          }
+          return false;
+        });
+
+        if (isAllowed) {
           callback(null, true);
         } else {
           callback(new Error(`Origin ${origin} not permitted by school CORS policy.`));

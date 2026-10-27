@@ -315,7 +315,7 @@ export function createAuthRouter(prisma: PrismaClient) {
       const cookieSecure = process.env.COOKIE_SECURE === 'true' ||
         (process.env.NODE_ENV === 'production' && cookieSameSite === 'none');
 
-      res.clearCookie('svss_session', { path: '/', sameSite: cookieSameSite, secure: cookieSecure });
+      res.clearCookie('svss_session', { path: '/', httpOnly: true, sameSite: cookieSameSite, secure: cookieSecure });
       res.json({ message: 'Signed out.', redirectTo: '/login' });
     } catch (err) {
       next(err);
