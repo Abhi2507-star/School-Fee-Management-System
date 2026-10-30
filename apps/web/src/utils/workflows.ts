@@ -680,13 +680,15 @@ export function getLocalizedLabel(lang: string, key: string): string {
   return (dict as Record<string, string>)[key] || (HINDI_FIRST_LABELS.hi as Record<string, string>)[key] || key;
 }
 
-export function formatRoleLabel(roleCode: string): string {
+export function formatRoleLabel(roleCode: string, lang: string = 'en'): string {
   const upper = (roleCode || '').trim().toUpperCase();
-  if (upper === 'ADMINISTRATOR' || upper === 'ADMIN') return 'Admin';
-  if (upper === 'CASHIER' || upper === 'FEE_COLLECTOR' || upper === 'ACCOUNTANT' || upper === 'AUDITOR') {
-    return 'Fee Collector';
+  if (upper === 'ADMINISTRATOR' || upper === 'ADMIN') {
+    return lang === 'hi' ? 'प्रशासक' : 'Admin';
   }
-  return 'Fee Collector';
+  if (upper === 'CASHIER' || upper === 'FEE_COLLECTOR' || upper === 'ACCOUNTANT' || upper === 'AUDITOR') {
+    return lang === 'hi' ? 'शुल्क संग्रहकर्ता' : 'Fee Collector';
+  }
+  return lang === 'hi' ? 'शुल्क संग्रहकर्ता' : 'Fee Collector';
 }
 
 export function resolveTwoRoleMode(roles: string[]): 'ADMIN' | 'FEE_COLLECTOR' {
@@ -1150,8 +1152,8 @@ export function evaluateBackendApiSecurity(request: any) {
     (method === 'GET' && rawPath === '/api/v1/auth/me') ||
     (method === 'POST' && rawPath === '/api/v1/auth/logout') ||
     (method === 'PATCH' && rawPath === '/api/v1/auth/me/display-name') ||
-    (method === 'GET' && rawPath === '/api/v1/academic-years') ||
-    (method === 'GET' && rawPath === '/api/v1/classes') ||
+    (method === 'GET' && (rawPath === '/api/v1/academic-years' || rawPath === '/api/v1/academics/academic-years')) ||
+    (method === 'GET' && (rawPath === '/api/v1/classes' || rawPath === '/api/v1/academics/classes')) ||
     (method === 'GET' && rawPath === '/api/v1/students') ||
     (method === 'GET' && /^\/api\/v1\/students\/[^/]+\/profile$/.test(rawPath)) ||
     (method === 'GET' && rawPath === '/api/v1/fee-heads') ||

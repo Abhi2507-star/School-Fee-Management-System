@@ -85,6 +85,7 @@ export function createApp(prisma: PrismaClient) {
   app.use('/api/v1/health', createHealthRouter(prisma));
   app.use('/api/v1/auth', authRateLimiter, createAuthRouter(prisma));
   app.use('/api/v1', createAcademicsRouter(prisma));
+  app.use('/api/v1/academics', createAcademicsRouter(prisma));
   app.use('/api/v1/students', createStudentsRouter(prisma));
   app.use('/api/v1', createFeesRouter(prisma));
   app.use('/api/v1/payments', createPaymentsRouter(prisma));

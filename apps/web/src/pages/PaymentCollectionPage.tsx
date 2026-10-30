@@ -564,8 +564,8 @@ export const PaymentCollectionPage: React.FC = () => {
                     }}
                     className="w-full border border-slate-300 rounded px-3 py-2 bg-white font-semibold"
                   >
-                    <option value="CASH">{lang === 'hi' ? 'नकद (CASH)' : 'CASH'}</option>
-                    <option value="UPI">{lang === 'hi' ? 'UPI (QR / मोबाइल भुगतान)' : 'UPI'}</option>
+                    <option value="CASH">{lang === 'hi' ? 'नकद' : 'Cash'}</option>
+                    <option value="UPI">{lang === 'hi' ? 'यूपीआई' : 'UPI'}</option>
                   </select>
                 </div>
                 <div>
@@ -586,7 +586,7 @@ export const PaymentCollectionPage: React.FC = () => {
               <div className="p-3 bg-slate-50 rounded border border-slate-200 space-y-2 text-xs">
                 <div className="pt-1">
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    {lang === 'hi' ? 'वसूलीकर्ता का पूरा नाम (पावती) *' : 'Collector Full-Name Acknowledgment *'}
+                    {lang === 'hi' ? 'वसूलीकर्ता का पूरा नाम *' : 'Collector Full-Name *'}
                   </label>
                   <input
                     type="text"
@@ -641,7 +641,7 @@ export const PaymentCollectionPage: React.FC = () => {
               ))}
               {allocationPreview.advancePaise > 0 && (
                 <div className="flex justify-between text-svss-navy font-bold pt-1">
-                  <span>{lang === 'hi' ? 'अग्रिम जमा (Advance):' : 'Advance Credit:'}</span>
+                  <span>{lang === 'hi' ? 'अग्रिम जमा:' : 'Advance Credit:'}</span>
                   <span className="font-mono">{formatRupees(fromPaiseInt(allocationPreview.advancePaise))}</span>
                 </div>
               )}

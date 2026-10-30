@@ -51,7 +51,7 @@ export const DashboardPage: React.FC = () => {
             {/* Today's Collection */}
             <div className="bg-white p-4 rounded border border-slate-200 border-l-4 border-l-emerald-600">
               <div className="text-xs font-bold uppercase text-slate-500">
-                {lang === 'hi' ? "आज की वसूली (Today's Collection)" : "Today's Collection"}
+                {lang === 'hi' ? 'आज की वसूली' : "Today's Collection"}
               </div>
               <div className="text-2xl font-extrabold text-emerald-700 font-mono mt-2">
                 {formatRupees(m.todaysValidCollection)}
@@ -66,7 +66,7 @@ export const DashboardPage: React.FC = () => {
             {/* Recent Receipts */}
             <div className="lg:col-span-2 bg-white p-4 rounded border border-slate-200">
               <h3 className="text-xs font-extrabold uppercase text-slate-700 border-b border-slate-100 pb-2 mb-3">
-                {lang === 'hi' ? 'हाल की रसीदें (Recent Receipts)' : 'Recent Receipts'}
+                {lang === 'hi' ? 'हाल की रसीदें' : 'Recent Receipts'}
               </h3>
               <div className="space-y-2 text-xs">
                 {(data?.recentPayments || []).length === 0 ? (
@@ -118,7 +118,7 @@ export const DashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded border border-slate-200 border-l-4 border-l-emerald-600">
               <div className="text-xs font-semibold text-slate-500">
-                {lang === 'hi' ? 'प्राप्त फीस (Fees Received)' : 'Fees Received'}
+                {lang === 'hi' ? 'प्राप्त फीस' : 'Fees Received'}
               </div>
               <div className="text-2xl font-bold text-emerald-700 font-mono mt-1">
                 {formatRupees(m.academicYearCollection)}
@@ -127,7 +127,7 @@ export const DashboardPage: React.FC = () => {
 
             <div className="bg-white p-4 rounded border border-slate-200 border-l-4 border-l-svss-saffron">
               <div className="text-xs font-semibold text-slate-500">
-                {lang === 'hi' ? 'बाकी फीस (Fees Remaining)' : 'Fees Remaining'}
+                {lang === 'hi' ? 'बाकी फीस' : 'Fees Remaining'}
               </div>
               <div className="text-2xl font-bold text-svss-saffron font-mono mt-1">
                 {formatRupees(m.totalOutstandingDues)}
@@ -136,7 +136,7 @@ export const DashboardPage: React.FC = () => {
 
             <div className="bg-white p-4 rounded border border-slate-200 border-l-4 border-l-svss-navy">
               <div className="text-xs font-semibold text-slate-500">
-                {lang === 'hi' ? 'कुल विद्यार्थी (Total Students)' : 'Total Students'}
+                {lang === 'hi' ? 'कुल विद्यार्थी' : 'Total Students'}
               </div>
               <div className="text-2xl font-bold text-slate-900 font-mono mt-1">
                 {m.totalActiveStudents}
@@ -145,7 +145,7 @@ export const DashboardPage: React.FC = () => {
 
             <div className="bg-white p-4 rounded border border-slate-200 border-l-4 border-l-amber-500">
               <div className="text-xs font-semibold text-slate-500">
-                {lang === 'hi' ? "आज की वसूली (Today's Collection)" : "Today's Collection"}
+                {lang === 'hi' ? 'आज की वसूली' : "Today's Collection"}
               </div>
               <div className="text-2xl font-bold text-slate-900 font-mono mt-1">
                 {formatRupees(m.todaysValidCollection)}
@@ -157,7 +157,7 @@ export const DashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white p-4 rounded border border-slate-200">
               <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
-                {lang === 'hi' ? 'हाल की रसीदें (Recent Receipts)' : 'Recent Receipts'}
+                {lang === 'hi' ? 'हाल की रसीदें' : 'Recent Receipts'}
               </h3>
               <div className="space-y-2.5 text-xs">
                 {(data?.recentPayments || []).length === 0 ? (
@@ -183,7 +183,7 @@ export const DashboardPage: React.FC = () => {
 
             <div className="bg-white p-4 rounded border border-slate-200">
               <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
-                {lang === 'hi' ? 'बकाया फीस वाले विद्यार्थी (Students with Pending Fees)' : 'Students with Pending Fees'}
+                {lang === 'hi' ? 'बकाया फीस वाले विद्यार्थी' : 'Students with Pending Fees'}
               </h3>
               <div className="space-y-2.5 text-xs">
                 {(data?.studentsWithPendingFees || []).length === 0 ? (

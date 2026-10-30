@@ -40,7 +40,7 @@ const DEFAULT_CLASS_NAMES = [
   'Class 10', 'Class 11', 'Class 12',
 ];
 
-const DEFAULT_SECTION_NAMES = ['A', 'B', 'C'];
+const DEFAULT_SECTION_NAMES = ['A', 'B', 'C', 'D'];
 
 export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = ({
   mode,

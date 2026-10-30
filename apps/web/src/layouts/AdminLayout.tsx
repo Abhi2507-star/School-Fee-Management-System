@@ -121,15 +121,15 @@ export const AdminLayout: React.FC<{
             </div>
             <div>
               <h1 className="font-bold text-xs tracking-wide uppercase leading-tight">
-                Swami Vivekanand Sikshan Sansthan
+                {lang === 'hi' ? 'स्वामी विवेकानंद शिक्षण संस्थान' : 'Swami Vivekanand Sikshan Sansthan'}
               </h1>
               <p className="text-[11px] text-blue-200 mt-0.5">
                 {isAdmin
                   ? lang === 'hi'
-                    ? 'प्रशासन पोर्टल (Admin)'
+                    ? 'प्रशासन पोर्टल'
                     : 'Admin Portal'
                   : lang === 'hi'
-                  ? 'फीस संग्रह पटल (Fee Collector)'
+                  ? 'शुल्क संग्रह पटल'
                   : 'Fee Collector Counter'}
               </p>
             </div>
@@ -278,7 +278,7 @@ export const AdminLayout: React.FC<{
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-blue-200 bg-blue-50 text-svss-navy text-xs font-bold hover:bg-blue-100"
             >
               <Globe className="w-3.5 h-3.5" />
-              <span>{lang === 'hi' ? 'भाषा: हिंदी (English)' : 'Lang: English (हिंदी)'}</span>
+              <span>{lang === 'hi' ? 'भाषा: हिंदी' : 'Language: English'}</span>
             </button>
 
             {/* Session Selector for Admin; Read-Only Active Session Label for Fee Collector */}
@@ -312,9 +312,9 @@ export const AdminLayout: React.FC<{
 
             <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200">
               <div className="text-right">
-                <div className="text-xs font-bold text-slate-800">{user?.fullName || 'Office Staff'}</div>
+                <div className="text-xs font-bold text-slate-800">{user?.fullName || (lang === 'hi' ? 'कार्यालय कर्मचारी' : 'Office Staff')}</div>
                 <div className="text-[11px] text-svss-saffron font-semibold">
-                  {formatRoleLabel(user?.roles?.[0] || '')}
+                  {formatRoleLabel(user?.roles?.[0] || '', lang)}
                 </div>
               </div>
               <button
@@ -334,7 +334,7 @@ export const AdminLayout: React.FC<{
         <div className="bg-white border-b border-slate-200 px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-2 no-print">
           <div>
             <div className="text-xs text-slate-500">
-              Swami Vivekanand Sikshan Sansthan {breadcrumbs.map((b) => ` / ${b}`).join('')}
+              {lang === 'hi' ? 'स्वामी विवेकानंद शिक्षण संस्थान' : 'Swami Vivekanand Sikshan Sansthan'} {breadcrumbs.map((b) => ` / ${b}`).join('')}
             </div>
             <h2 className="text-base lg:text-lg font-bold text-slate-900 mt-0.5">{title}</h2>
           </div>

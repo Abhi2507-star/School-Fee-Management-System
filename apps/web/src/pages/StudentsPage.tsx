@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { apiRequest } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useAcademicSession } from '../hooks/useAcademicSession';
+import { useLanguage } from '../hooks/useLanguage';
+import { AdminLayout } from '../layouts/AdminLayout';
 import {
   buildSessionScopedUrl,
   EMPTY_STRUCTURED_SEARCH_CRITERIA,
@@ -26,6 +28,7 @@ interface AcademicYearOption {
 
 export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: propRoles }: StudentsPageProps = {}) {
   const { user } = useAuth();
+  const { lang, t } = useLanguage();
   const { selectedAcademicYearId: sessionYearId } = useAcademicSession();
   const selectedAcademicYearId = propYearId || sessionYearId || '';
   const userRoles = propRoles || user?.roles || [];
@@ -74,8 +77,8 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
   async function loadClassesAndSessions() {
     try {
       const [clsRes, yrRes] = await Promise.all([
-        apiRequest<{ classes: any[] }>('/academics/classes'),
-        apiRequest<{ academicYears: AcademicYearOption[] }>('/academics/academic-years'),
+        apiRequest<{ classes: any[] }>('/classes'),
+        apiRequest<{ academicYears: AcademicYearOption[] }>('/academic-years'),
       ]);
       setClasses(clsRes.classes);
       setAcademicYears(yrRes.academicYears);
@@ -253,7 +256,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
     try {
       const code = newSessionForm.code.trim();
       const startYear = Number(code.slice(0, 4)) || 2027;
-      const res = await apiRequest<{ academicYear: AcademicYearOption }>('/academics/academic-years', {
+      const res = await apiRequest<{ academicYear: AcademicYearOption }>('/academic-years', {
         method: 'POST',
         body: JSON.stringify({
           code,
@@ -293,33 +296,38 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
   const selectedClassForNew = classes.find((c) => c.id === newStudentForm.classId);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-extrabold text-slate-900">विद्यार्थी पंजीकरण और सूची (Student Registration &amp; Directory)</h2>
-          <p className="text-xs text-slate-500">
-            Register students with the 8 required fields, manage configurable academic sessions, and submit fees immediately
-          </p>
-        </div>
-        {canWrite && (
+    <AdminLayout
+      title={lang === 'hi' ? 'विद्यार्थी पंजीकरण और निर्देशिका' : 'Student Registration & Directory'}
+      breadcrumbs={lang === 'hi' ? ['विद्यार्थी', 'निर्देशिका'] : ['Students', 'Directory']}
+      actions={
+        canWrite ? (
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setShowSessionModal(!showSessionModal)}
               className="border border-blue-900 text-blue-900 hover:bg-blue-50 px-3 py-1.5 rounded text-xs font-bold"
             >
-              + नया शैक्षणिक सत्र (Add Academic Session)
+              {lang === 'hi' ? '+ नया शैक्षणिक सत्र' : '+ Add Academic Session'}
             </button>
             <button
               type="button"
               onClick={() => setShowNewModal(!showNewModal)}
               className="bg-blue-900 hover:bg-blue-800 text-white px-3.5 py-1.5 rounded text-xs font-bold"
             >
-              + नया विद्यार्थी पंजीकरण (+ Register New Student)
+              {lang === 'hi' ? '+ नया विद्यार्थी पंजीकरण' : '+ Register New Student'}
             </button>
           </div>
-        )}
-      </div>
+        ) : undefined
+      }
+    >
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-slate-500">
+            {lang === 'hi'
+              ? 'आवश्यक 8 विवरणों के साथ विद्यार्थियों का पंजीकरण करें, शैक्षणिक सत्र प्रबंधित करें और फीस तुरंत जमा करें।'
+              : 'Register students with the 8 required fields, manage configurable academic sessions, and submit fees immediately.'}
+          </p>
+        </div>
 
       {errorMsg && (
         <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-800 font-semibold">
@@ -340,14 +348,18 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           className="bg-white p-4 rounded border-2 border-slate-300 space-y-3 text-xs"
         >
           <div className="flex justify-between items-center border-b pb-2">
-            <h3 className="text-sm font-bold text-slate-900">नया शैक्षणिक सत्र जोड़ें (Configure Academic Session)</h3>
+            <h3 className="text-sm font-bold text-slate-900">
+              {lang === 'hi' ? 'नया शैक्षणिक सत्र जोड़ें' : 'Configure Academic Session'}
+            </h3>
             <button type="button" onClick={() => setShowSessionModal(false)} className="text-slate-500 font-bold">
-              Close ✕
+              {lang === 'hi' ? 'बंद करें ✕' : 'Close ✕'}
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block font-semibold mb-1">Session Code (YYYY-YY) *</label>
+              <label className="block font-semibold mb-1">
+                {lang === 'hi' ? 'सत्र कोड (YYYY-YY) *' : 'Session Code (YYYY-YY) *'}
+              </label>
               <input
                 type="text"
                 required
@@ -358,18 +370,22 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Session Label *</label>
+              <label className="block font-semibold mb-1">
+                {lang === 'hi' ? 'सत्र का नाम *' : 'Session Label *'}
+              </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Academic Session 2027–28"
+                placeholder={lang === 'hi' ? 'उदा. शैक्षणिक सत्र 2027–28' : 'e.g. Academic Session 2027–28'}
                 value={newSessionForm.name}
                 onChange={(e) => setNewSessionForm({ ...newSessionForm, name: e.target.value })}
                 className="w-full border rounded px-2.5 py-1.5"
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Start Date *</label>
+              <label className="block font-semibold mb-1">
+                {lang === 'hi' ? 'प्रारंभ तिथि *' : 'Start Date *'}
+              </label>
               <input
                 type="date"
                 required
@@ -379,7 +395,9 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">End Date *</label>
+              <label className="block font-semibold mb-1">
+                {lang === 'hi' ? 'समाप्ति तिथि *' : 'End Date *'}
+              </label>
               <input
                 type="date"
                 required
@@ -391,7 +409,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           </div>
           <div className="flex justify-end">
             <button type="submit" className="bg-blue-900 text-white px-4 py-1.5 rounded font-bold">
-              Save Academic Session
+              {lang === 'hi' ? 'सत्र सहेजें' : 'Save Academic Session'}
             </button>
           </div>
         </form>
@@ -406,16 +424,16 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         >
           <div className="flex justify-between items-center border-b pb-2">
             <h3 className="text-sm font-bold text-blue-900">
-              नया विद्यार्थी पंजीकरण फ़ॉर्म (Student Registration Form)
+              {lang === 'hi' ? 'नया विद्यार्थी पंजीकरण फ़ॉर्म' : 'Student Registration Form'}
             </h3>
             <button type="button" onClick={() => setShowNewModal(false)} className="text-slate-500 font-bold">
-              Close ✕
+              {lang === 'hi' ? 'बंद करें ✕' : 'Close ✕'}
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label className="block font-semibold mb-1">
-                1. Registration / Admission Number (पंजीकरण / प्रवेश संख्या) *
+                1. {lang === 'hi' ? 'पंजीकरण / प्रवेश संख्या *' : 'Registration / Admission Number *'}
               </label>
               <input
                 type="text"
@@ -427,22 +445,26 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">2. Student Name (विद्यार्थी का नाम) *</label>
+              <label className="block font-semibold mb-1">
+                2. {lang === 'hi' ? 'विद्यार्थी का नाम *' : 'Student Name *'}
+              </label>
               <input
                 type="text"
                 required
-                placeholder="Student Full Name"
+                placeholder={lang === 'hi' ? 'विद्यार्थी का पूरा नाम' : 'Student Full Name'}
                 value={newStudentForm.fullName}
                 onChange={(e) => setNewStudentForm({ ...newStudentForm, fullName: e.target.value })}
                 className="w-full border rounded px-2.5 py-1.5"
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">3. Father&apos;s Name (पिता का नाम) *</label>
+              <label className="block font-semibold mb-1">
+                3. {lang === 'hi' ? 'पिता का नाम *' : "Father's Name *"}
+              </label>
               <input
                 type="text"
                 required
-                placeholder="Father's Name"
+                placeholder={lang === 'hi' ? 'पिता का नाम' : "Father's Name"}
                 value={newStudentForm.guardianName}
                 onChange={(e) => setNewStudentForm({ ...newStudentForm, guardianName: e.target.value })}
                 className="w-full border rounded px-2.5 py-1.5"
@@ -450,30 +472,34 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             </div>
             <div>
               <label className="block font-semibold mb-1">
-                4. Guardian&apos;s Mobile Number (अभिभावक का मोबाइल नंबर) *
+                4. {lang === 'hi' ? 'अभिभावक का मोबाइल नंबर *' : "Guardian's Mobile Number *"}
               </label>
               <input
                 type="tel"
                 required
-                placeholder="10-digit Mobile Number"
+                placeholder={lang === 'hi' ? '10 अंकों का मोबाइल नंबर' : '10-digit Mobile Number'}
                 value={newStudentForm.primaryContactNumber}
                 onChange={(e) => setNewStudentForm({ ...newStudentForm, primaryContactNumber: e.target.value })}
                 className="w-full border rounded px-2.5 py-1.5 font-mono"
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">5. Address (पता) *</label>
+              <label className="block font-semibold mb-1">
+                5. {lang === 'hi' ? 'निवास का पता *' : 'Residential Address *'}
+              </label>
               <input
                 type="text"
                 required
-                placeholder="Village/Post, Kadipur, Sultanpur"
+                placeholder={lang === 'hi' ? 'ग्राम/पोस्ट, कादीपुर, सुल्तानपुर' : 'Village/Post, Kadipur, Sultanpur'}
                 value={newStudentForm.address}
                 onChange={(e) => setNewStudentForm({ ...newStudentForm, address: e.target.value })}
                 className="w-full border rounded px-2.5 py-1.5"
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">6. Class (कक्षा) *</label>
+              <label className="block font-semibold mb-1">
+                6. {lang === 'hi' ? 'कक्षा *' : 'Class *'}
+              </label>
               <select
                 required
                 value={newStudentForm.classId}
@@ -495,7 +521,9 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               </select>
             </div>
             <div>
-              <label className="block font-semibold mb-1">7. Section (सेक्शन) *</label>
+              <label className="block font-semibold mb-1">
+                7. {lang === 'hi' ? 'सेक्शन *' : 'Section *'}
+              </label>
               <select
                 required
                 value={newStudentForm.sectionId}
@@ -504,13 +532,15 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               >
                 {(selectedClassForNew?.sections || []).map((s: any) => (
                   <option key={s.id} value={s.id}>
-                    Sec {s.name}
+                    {lang === 'hi' ? `सेक्शन ${s.name}` : `Sec ${s.name}`}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block font-semibold mb-1">8. Academic Session (शैक्षणिक सत्र) *</label>
+              <label className="block font-semibold mb-1">
+                8. {lang === 'hi' ? 'शैक्षणिक सत्र *' : 'Academic Session *'}
+              </label>
               <select
                 required
                 value={newStudentForm.academicYearId}
@@ -527,7 +557,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           </div>
           <div className="flex justify-end pt-2">
             <button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded font-bold">
-              विद्यार्थी सुरक्षित करें (Save Student)
+              {lang === 'hi' ? 'विद्यार्थी सुरक्षित करें' : 'Save Student'}
             </button>
           </div>
         </form>
@@ -542,16 +572,20 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         className="bg-white p-3.5 rounded border border-slate-200 space-y-3 text-xs"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-          <span className="font-extrabold uppercase text-blue-900">Student Search &amp; Filter</span>
+          <span className="font-extrabold uppercase text-blue-900">
+            {lang === 'hi' ? 'विद्यार्थी खोज और फ़िल्टर' : 'Student Search & Filter'}
+          </span>
           <span className="text-[11px] text-slate-500">
-            Filter by any single field or any combination of Student Name, Father&apos;s Name, Class, or Section
+            {lang === 'hi'
+              ? 'विद्यार्थी का नाम, पिता का नाम, कक्षा या सेक्शन के अनुसार खोजें'
+              : 'Filter by any single field or any combination of Student Name, Father\'s Name, Class, or Section'}
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="relative">
             <label htmlFor="dirStudentNameInput" className="block font-bold text-slate-700 mb-1">
-              Student Name / Adm No
+              {lang === 'hi' ? 'विद्यार्थी का नाम / प्रवेश सं.' : 'Student Name / Adm No'}
             </label>
             <input
               id="dirStudentNameInput"
@@ -570,7 +604,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                 setActiveDropdownField('studentName');
                 setHighlightedIndex(0);
               }}
-              placeholder="Type name or Adm No for suggestions..."
+              placeholder={lang === 'hi' ? 'नाम या प्रवेश संख्या दर्ज करें...' : 'Type name or Adm No for suggestions...'}
               className="w-full border border-slate-300 rounded px-2.5 py-1.5"
             />
             {activeDropdownField === 'studentName' && currentSuggestions.length > 0 && (
@@ -597,9 +631,9 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                       <div className="font-bold text-slate-900 truncate">
                         {st.fullName} <span className="font-mono text-[10px] text-blue-900">({st.admissionNumber})</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 truncate">Father: {st.guardianName}</div>
+                      <div className="text-[11px] text-slate-600 truncate">{lang === 'hi' ? 'पिता:' : 'Father:'} {st.guardianName}</div>
                     </div>
-                    <span className="text-[10px] font-bold text-emerald-700 shrink-0">Auto-Fill ↵</span>
+                    <span className="text-[10px] font-bold text-emerald-700 shrink-0">{lang === 'hi' ? 'ऑटो-भरें ↵' : 'Auto-Fill ↵'}</span>
                   </button>
                 ))}
               </div>
@@ -607,7 +641,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           </div>
           <div className="relative">
             <label htmlFor="dirFatherNameInput" className="block font-bold text-slate-700 mb-1">
-              Father&apos;s Name
+              {lang === 'hi' ? 'पिता का नाम' : "Father's Name"}
             </label>
             <input
               id="dirFatherNameInput"
@@ -626,13 +660,13 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                 setActiveDropdownField('fatherName');
                 setHighlightedIndex(0);
               }}
-              placeholder="Type father's name..."
+              placeholder={lang === 'hi' ? 'पिता का नाम दर्ज करें...' : "Type father's name..."}
               className="w-full border border-slate-300 rounded px-2.5 py-1.5"
             />
           </div>
           <div>
             <label htmlFor="dirClassFilter" className="block font-bold text-slate-700 mb-1">
-              Class
+              {lang === 'hi' ? 'कक्षा' : 'Class'}
             </label>
             <select
               id="dirClassFilter"
@@ -646,7 +680,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               }
               className="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white"
             >
-              <option value="">All Classes (LKG – Class 12)</option>
+              <option value="">{lang === 'hi' ? 'सभी कक्षाएं (LKG – 12)' : 'All Classes (LKG – Class 12)'}</option>
               {classes.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -656,7 +690,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           </div>
           <div>
             <label htmlFor="dirSectionFilter" className="block font-bold text-slate-700 mb-1">
-              Section
+              {lang === 'hi' ? 'सेक्शन' : 'Section'}
             </label>
             <select
               id="dirSectionFilter"
@@ -664,17 +698,17 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               onChange={(e) => setSearchCriteria((prev) => ({ ...prev, sectionValue: e.target.value }))}
               className="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white"
             >
-              <option value="">All Sections</option>
+              <option value="">{lang === 'hi' ? 'सभी सेक्शन' : 'All Sections'}</option>
               {filterSections.map((sec: any) => (
                 <option key={sec.id} value={sec.id}>
-                  Section {sec.name}
+                  {lang === 'hi' ? `सेक्शन ${sec.name}` : `Section ${sec.name}`}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label htmlFor="dirStatusFilter" className="block font-bold text-slate-700 mb-1">
-              Status
+              {lang === 'hi' ? 'स्थिति' : 'Status'}
             </label>
             <select
               id="dirStatusFilter"
@@ -682,11 +716,11 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white"
             >
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="PROMOTED">PROMOTED</option>
-              <option value="TRANSFERRED">TRANSFERRED</option>
-              <option value="WITHDRAWN">WITHDRAWN</option>
+              <option value="">{lang === 'hi' ? 'सभी स्थितियाँ' : 'All Statuses'}</option>
+              <option value="ACTIVE">{lang === 'hi' ? 'सक्रिय' : 'ACTIVE'}</option>
+              <option value="PROMOTED">{lang === 'hi' ? 'पदोन्नत' : 'PROMOTED'}</option>
+              <option value="TRANSFERRED">{lang === 'hi' ? 'स्थानांतरित' : 'TRANSFERRED'}</option>
+              <option value="WITHDRAWN">{lang === 'hi' ? 'हटाया गया' : 'WITHDRAWN'}</option>
             </select>
           </div>
         </div>
@@ -702,10 +736,10 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             }}
             className="px-3.5 py-1.5 border border-slate-300 hover:bg-slate-100 rounded font-semibold text-slate-700"
           >
-            Reset
+            {lang === 'hi' ? 'रीसेट' : 'Reset'}
           </button>
           <button type="submit" className="bg-blue-900 hover:bg-blue-800 text-white px-4 py-1.5 rounded font-bold">
-            Search
+            {lang === 'hi' ? 'खोजें' : 'Search'}
           </button>
         </div>
       </form>
@@ -714,15 +748,15 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-slate-100 border-b text-slate-700">
-              <th className="p-2.5 text-left">Admission No</th>
-              <th className="p-2.5 text-left">Student Name</th>
-              <th className="p-2.5 text-left">Father&apos;s Name &amp; Mobile</th>
-              <th className="p-2.5 text-left">Class &amp; Sec</th>
-              <th className="p-2.5 text-left">Session</th>
-              <th className="p-2.5 text-right">Net Payable</th>
-              <th className="p-2.5 text-right">Cleared Paid</th>
-              <th className="p-2.5 text-right">Outstanding</th>
-              <th className="p-2.5 text-right">Actions</th>
+              <th className="p-2.5 text-left">{lang === 'hi' ? 'प्रवेश संख्या' : 'Admission No'}</th>
+              <th className="p-2.5 text-left">{lang === 'hi' ? 'विद्यार्थी का नाम' : 'Student Name'}</th>
+              <th className="p-2.5 text-left">{lang === 'hi' ? 'पिता का नाम व मोबाइल' : "Father's Name & Mobile"}</th>
+              <th className="p-2.5 text-left">{lang === 'hi' ? 'कक्षा व सेक्शन' : 'Class & Sec'}</th>
+              <th className="p-2.5 text-left">{lang === 'hi' ? 'सत्र' : 'Session'}</th>
+              <th className="p-2.5 text-right">{lang === 'hi' ? 'कुल देय' : 'Net Payable'}</th>
+              <th className="p-2.5 text-right">{lang === 'hi' ? 'जमा राशि' : 'Cleared Paid'}</th>
+              <th className="p-2.5 text-right">{lang === 'hi' ? 'बकाया' : 'Outstanding'}</th>
+              <th className="p-2.5 text-right">{lang === 'hi' ? 'कार्रवाई' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
@@ -736,6 +770,8 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                 <td className="p-2.5">
                   {s.currentEnrollment
                     ? `${s.currentEnrollment.className}-${s.currentEnrollment.sectionName}`
+                    : lang === 'hi'
+                    ? 'नामांकित नहीं'
                     : 'Unenrolled'}
                 </td>
                 <td className="p-2.5 font-mono">
@@ -754,13 +790,13 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                     onClick={() => setSelectedStudentId(s.id)}
                     className="text-blue-900 font-bold underline"
                   >
-                    Inspect Ledger
+                    {lang === 'hi' ? 'लेजर देखें' : 'Inspect Ledger'}
                   </button>
                   <Link
                     to={`/collect?studentId=${encodeURIComponent(s.id)}`}
                     className="text-orange-600 font-bold underline"
                   >
-                    फीस जमा करें (Collect Fee)
+                    {lang === 'hi' ? 'फीस जमा करें' : 'Collect Fee'}
                   </Link>
                 </td>
               </tr>
@@ -768,7 +804,9 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             {students.length === 0 && (
               <tr>
                 <td colSpan={9} className="p-6 text-center text-slate-500">
-                  No student records found. Click &quot;+ Register New Student&quot; above to enter student data.
+                  {lang === 'hi'
+                    ? 'कोई विद्यार्थी रिकॉर्ड नहीं मिला। डेटा दर्ज करने के लिए ऊपर "+ नया विद्यार्थी पंजीकरण" पर क्लिक करें।'
+                    : 'No student records found. Click "+ Register New Student" above to enter student data.'}
                 </td>
               </tr>
             )}
@@ -776,24 +814,24 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         </table>
       </div>
 
-      {/* 9-Tab Student Profile Inspector */}
+      {/* 7-Tab Student Profile Inspector */}
       {profile && (
         <div className="bg-white rounded border-2 border-slate-300 overflow-hidden">
           <div className="bg-slate-100 px-4 py-3 border-b flex justify-between items-center">
             <span className="text-sm font-extrabold text-blue-900">
-              {profile.overview.fullName} ({profile.overview.admissionNumber}) — Outstanding: ₹
+              {profile.overview.fullName} ({profile.overview.admissionNumber}) — {lang === 'hi' ? 'बकाया शुल्क:' : 'Outstanding:'} ₹
               {profile.ledger.totalOutstandingBalance}
             </span>
           </div>
           <div className="flex flex-wrap border-b bg-slate-50 px-2 pt-1 text-xs">
             {[
-              ['overview', '1. Overview'],
-              ['academic', '2. Academic History'],
-              ['outstanding', '3. Outstanding Fees'],
-              ['payments', '4. Payment History'],
-              ['concessions', '5. Concessions'],
-              ['refunds', '6. Refunds & Reversals'],
-              ['audit', '7. Audit History'],
+              ['overview', lang === 'hi' ? '1. अवलोकन' : '1. Overview'],
+              ['academic', lang === 'hi' ? '2. शैक्षणिक इतिहास' : '2. Academic History'],
+              ['outstanding', lang === 'hi' ? '3. बकाया शुल्क' : '3. Outstanding Fees'],
+              ['payments', lang === 'hi' ? '4. भुगतान इतिहास' : '4. Payment History'],
+              ['concessions', lang === 'hi' ? '5. रियायतें एवं छूट' : '5. Concessions'],
+              ['refunds', lang === 'hi' ? '6. वापसी एवं निरस्तीकरण' : '6. Refunds & Reversals'],
+              ['audit', lang === 'hi' ? '7. ऑडिट इतिहास' : '7. Audit History'],
             ].map(([key, label]) => (
               <button
                 key={key}
@@ -811,19 +849,19 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             {activeTab === 'overview' && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 bg-slate-50 rounded border">
-                  <strong>Admission No:</strong> {profile.overview.admissionNumber}
+                  <strong>{lang === 'hi' ? 'प्रवेश संख्या:' : 'Admission No:'}</strong> {profile.overview.admissionNumber}
                 </div>
                 <div className="p-3 bg-slate-50 rounded border">
-                  <strong>Father&apos;s Name:</strong> {profile.overview.guardianName}
+                  <strong>{lang === 'hi' ? 'पिता का नाम:' : "Father's Name:"}</strong> {profile.overview.guardianName}
                 </div>
                 <div className="p-3 bg-slate-50 rounded border">
-                  <strong>Guardian Mobile:</strong> {profile.overview.primaryContactNumber}
+                  <strong>{lang === 'hi' ? 'अभिभावक मोबाइल:' : 'Guardian Mobile:'}</strong> {profile.overview.primaryContactNumber}
                 </div>
                 <div className="p-3 bg-slate-50 rounded border sm:col-span-2">
-                  <strong>Address:</strong> {profile.overview.address}
+                  <strong>{lang === 'hi' ? 'निवास का पता:' : 'Address:'}</strong> {profile.overview.address}
                 </div>
                 <div className="p-3 bg-slate-50 rounded border">
-                  <strong>Advance Credit:</strong> ₹{profile.overview.advanceCreditBalance}
+                  <strong>{lang === 'hi' ? 'अग्रिम राशि:' : 'Advance Credit:'}</strong> ₹{profile.overview.advanceCreditBalance}
                 </div>
               </div>
             )}
@@ -908,6 +946,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
