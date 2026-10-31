@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { apiRequest } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useAcademicSession } from '../hooks/useAcademicSession';
@@ -32,11 +32,14 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
   const { selectedAcademicYearId: sessionYearId } = useAcademicSession();
   const selectedAcademicYearId = propYearId || sessionYearId || '';
   const userRoles = propRoles || user?.roles || [];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlQuery = searchParams.get('q') || '';
   const [students, setStudents] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYearOption[]>([]);
   const [searchCriteria, setSearchCriteria] = useState<StructuredStudentSearchCriteria>({
     ...EMPTY_STRUCTURED_SEARCH_CRITERIA,
+    studentName: urlQuery,
   });
   const [statusFilter, setStatusFilter] = useState('ACTIVE');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -106,8 +109,10 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
   async function loadStudents(overrideCriteria?: StructuredStudentSearchCriteria) {
     const active = overrideCriteria || searchCriteria;
     try {
+      const kw = active.studentName.trim() || undefined;
       const url = buildSessionScopedUrl('/students', selectedAcademicYearId, {
-        studentName: active.studentName.trim() || undefined,
+        q: kw,
+        studentName: kw,
         fatherName: active.fatherName.trim() || undefined,
         classId: active.classValue || undefined,
         sectionId: active.sectionValue || undefined,
@@ -146,6 +151,17 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
       setNewStudentForm((prev) => ({ ...prev, academicYearId: selectedAcademicYearId }));
     }
   }, [selectedAcademicYearId, statusFilter]);
+
+  useEffect(() => {
+    if (urlQuery !== searchCriteria.studentName) {
+      const updated = {
+        ...searchCriteria,
+        studentName: urlQuery,
+      };
+      setSearchCriteria(updated);
+      loadStudents(updated);
+    }
+  }, [urlQuery]);
 
   useEffect(() => {
     if (selectedStudentId) {
@@ -567,6 +583,14 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          const trimmed = searchCriteria.studentName.trim();
+          if (trimmed) {
+            setSearchParams({ q: trimmed });
+          } else {
+            const next = new URLSearchParams(searchParams);
+            next.delete('q');
+            setSearchParams(next);
+          }
           loadStudents();
         }}
         className="bg-white p-3.5 rounded border border-slate-200 space-y-3 text-xs"
@@ -585,7 +609,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="relative">
             <label htmlFor="dirStudentNameInput" className="block font-bold text-slate-700 mb-1">
-              {lang === 'hi' ? 'विद्यार्थी का नाम / प्रवेश सं.' : 'Student Name / Adm No'}
+              {lang === 'hi' ? 'विद्यार्थी का नाम / प्रवेश सं. / कीवर्ड' : 'Student Name / Adm No / Keyword'}
             </label>
             <input
               id="dirStudentNameInput"
@@ -604,7 +628,7 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                 setActiveDropdownField('studentName');
                 setHighlightedIndex(0);
               }}
-              placeholder={lang === 'hi' ? 'नाम या प्रवेश संख्या दर्ज करें...' : 'Type name or Adm No for suggestions...'}
+              placeholder={lang === 'hi' ? 'नाम, प्रवेश सं., पिता का नाम या मोबाइल...' : 'Search by Name, Adm No, Father Name, or Phone...'}
               className="w-full border border-slate-300 rounded px-2.5 py-1.5"
             />
             {activeDropdownField === 'studentName' && currentSuggestions.length > 0 && (
@@ -631,7 +655,10 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
                       <div className="font-bold text-slate-900 truncate">
                         {st.fullName} <span className="font-mono text-[10px] text-blue-900">({st.admissionNumber})</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 truncate">{lang === 'hi' ? 'पिता:' : 'Father:'} {st.guardianName}</div>
+                      <div className="text-[11px] text-slate-600 truncate">
+                        {lang === 'hi' ? 'पिता:' : 'Father:'} {st.guardianName}
+                        {st.primaryContactNumber ? ` | 📞 ${st.primaryContactNumber}` : ''}
+                      </div>
                     </div>
                     <span className="text-[10px] font-bold text-emerald-700 shrink-0">{lang === 'hi' ? 'ऑटो-भरें ↵' : 'Auto-Fill ↵'}</span>
                   </button>
@@ -731,7 +758,10 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             onClick={() => {
               const reset = { ...EMPTY_STRUCTURED_SEARCH_CRITERIA };
               setSearchCriteria(reset);
-              setStatusFilter('');
+              setStatusFilter('ACTIVE');
+              const next = new URLSearchParams(searchParams);
+              next.delete('q');
+              setSearchParams(next);
               loadStudents(reset);
             }}
             className="px-3.5 py-1.5 border border-slate-300 hover:bg-slate-100 rounded font-semibold text-slate-700"

@@ -124,7 +124,7 @@ export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = (
               htmlFor={`${mode}-search-student-name`}
               className="block text-xs font-bold text-slate-700 mb-1"
             >
-              {t('studentName')} / {t('admissionNumber')}
+              {lang === 'hi' ? 'विद्यार्थी का नाम / प्रवेश सं. / कीवर्ड' : 'Student Name / Adm No / Keyword'}
             </label>
             <input
               id={`${mode}-search-student-name`}
@@ -153,7 +153,7 @@ export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = (
                   setActiveDropdown(null);
                 }
               }}
-              placeholder={lang === 'hi' ? 'नाम या प्रवेश संख्या (जैसे SVSS/2026/001)' : 'Name or Admission No'}
+              placeholder={lang === 'hi' ? 'नाम, प्रवेश सं., पिता का नाम या मोबाइल...' : 'Search by Name, Adm No, Father Name, or Phone...'}
               className="w-full border border-slate-300 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-svss-navy"
             />
             {activeDropdown === 'studentName' && studentSuggestions.length > 0 && (
@@ -182,6 +182,7 @@ export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = (
                       </div>
                       <div className="text-[11px] text-slate-600 truncate">
                         {t('fatherName')}: {st.guardianName}
+                        {st.primaryContactNumber ? ` | 📞 ${st.primaryContactNumber}` : ''}
                       </div>
                     </div>
                     <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-[10px] shrink-0">

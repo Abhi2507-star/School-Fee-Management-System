@@ -227,7 +227,7 @@
               id="globalStudentSearch"
               type="text"
               autocomplete="off"
-              placeholder="Quick Search Student by Admission No (SVSS/2026/...) or Name..."
+              placeholder="Search by Name, Adm No (SVSS/2026/...), Father Name, or Phone..."
               class="w-full border border-slate-300 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-blue-800"
             />
             <div
@@ -355,12 +355,12 @@
                 <form id="posStudentSearchForm" class="p-3.5 space-y-3" autocomplete="off">
                   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                     <div class="relative" id="posStudentNameAutocompleteWrap">
-                      <label for="posSearchStudentName" class="block font-bold text-slate-700 mb-1">Student Name / Adm No</label>
+                      <label for="posSearchStudentName" class="block font-bold text-slate-700 mb-1">Student Name / Adm No / Keyword</label>
                       <input
                         id="posSearchStudentName"
                         type="text"
                         autocomplete="off"
-                        placeholder="Type name or Adm No (e.g. Aarav)..."
+                        placeholder="Search by Name, Adm No, Father Name, or Phone..."
                         class="w-full border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-blue-900"
                       />
                       <div
@@ -741,8 +741,8 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <div class="relative" id="dirStudentNameAutocompleteWrap">
-                <label for="studentListFilterInput" class="block font-bold text-slate-700 mb-1">Student Name / Adm No</label>
-                <input id="studentListFilterInput" type="text" autocomplete="off" placeholder="Type name or Adm No..." class="w-full border border-slate-300 rounded px-2.5 py-1.5" />
+                <label for="studentListFilterInput" class="block font-bold text-slate-700 mb-1">Student Name / Adm No / Keyword</label>
+                <input id="studentListFilterInput" type="text" autocomplete="off" placeholder="Search by Name, Adm No, Father Name, or Phone..." class="w-full border border-slate-300 rounded px-2.5 py-1.5" />
                 <div
                   id="dirStudentNameDropdown"
                   role="listbox"
@@ -1626,11 +1626,17 @@
         if (nameQ) {
           const matchNameOrAdm =
             s.fullName.toLowerCase().includes(nameQ) ||
-            s.admissionNumber.toLowerCase().includes(nameQ);
+            s.admissionNumber.toLowerCase().includes(nameQ) ||
+            (s.guardianName || '').toLowerCase().includes(nameQ) ||
+            (s.phone || '').includes(nameQ);
           if (!matchNameOrAdm) return false;
         }
         if (fatherQ) {
-          if (!s.guardianName.toLowerCase().includes(fatherQ)) return false;
+          const matchFather =
+            (s.guardianName || '').toLowerCase().includes(fatherQ) ||
+            s.fullName.toLowerCase().includes(fatherQ) ||
+            s.admissionNumber.toLowerCase().includes(fatherQ);
+          if (!matchFather) return false;
         }
         if (clsQ) {
           if (s.className.toLowerCase() !== clsQ) return false;
@@ -3374,7 +3380,11 @@
         const q = (document.getElementById('globalStudentSearch').value || '').trim().toLowerCase();
         if (!q) return;
         const match = state.students.find(
-          (s) => s.admissionNumber.toLowerCase().includes(q) || s.fullName.toLowerCase().includes(q) || s.phone.includes(q)
+          (s) =>
+            s.admissionNumber.toLowerCase().includes(q) ||
+            s.fullName.toLowerCase().includes(q) ||
+            (s.phone || '').includes(q) ||
+            (s.guardianName || '').toLowerCase().includes(q)
         );
         if (match) {
           state.selectedStudentId = match.id;

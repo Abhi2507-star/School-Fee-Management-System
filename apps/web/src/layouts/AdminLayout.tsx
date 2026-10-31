@@ -33,6 +33,8 @@ export const AdminLayout: React.FC<{
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [globalQuery, setGlobalQuery] = useState(searchParams.get('q') || '');
+  const [showGlobalSuggestions, setShowGlobalSuggestions] = useState(false);
+  const [globalHighlightedIndex, setGlobalHighlightedIndex] = useState(-1);
 
   const roleMode = resolveTwoRoleMode(user?.roles || []);
   const isAdmin = !loading && roleMode === 'ADMIN';
@@ -42,6 +44,19 @@ export const AdminLayout: React.FC<{
       setGlobalQuery(searchParams.get('q') || '');
     }
   }, [location.pathname, searchParams]);
+
+  const { data: globalSuggestionsData } = useQuery({
+    queryKey: ['global-search-students', globalQuery.trim()],
+    queryFn: () => {
+      const q = globalQuery.trim();
+      if (!q) return { students: [] };
+      return apiRequest<{ students: any[] }>(`/students?q=${encodeURIComponent(q)}&status=ACTIVE`);
+    },
+    enabled: globalQuery.trim().length >= 1,
+    staleTime: 30000,
+  });
+
+  const globalSuggestions = (globalSuggestionsData?.students || []).slice(0, 8);
 
   useEffect(() => {
     const suppressInjectedOverlay = () => {
@@ -105,6 +120,7 @@ export const AdminLayout: React.FC<{
 
   const handleGlobalSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowGlobalSuggestions(false);
     const trimmed = globalQuery.trim();
     if (!trimmed) return;
     navigate(`/students?q=${encodeURIComponent(trimmed)}`);
@@ -252,14 +268,83 @@ export const AdminLayout: React.FC<{
               <input
                 type="text"
                 value={globalQuery}
-                onChange={(e) => setGlobalQuery(e.target.value)}
+                autoComplete="off"
+                onFocus={() => {
+                  if (globalQuery.trim().length >= 1) setShowGlobalSuggestions(true);
+                }}
+                onBlur={() => setTimeout(() => setShowGlobalSuggestions(false), 200)}
+                onChange={(e) => {
+                  setGlobalQuery(e.target.value);
+                  setShowGlobalSuggestions(e.target.value.trim().length >= 1);
+                  setGlobalHighlightedIndex(-1);
+                }}
+                onKeyDown={(e) => {
+                  if (!showGlobalSuggestions || globalSuggestions.length === 0) return;
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setGlobalHighlightedIndex((i) => (i + 1) % globalSuggestions.length);
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setGlobalHighlightedIndex((i) => (i - 1 + globalSuggestions.length) % globalSuggestions.length);
+                  } else if (e.key === 'Enter' && globalHighlightedIndex >= 0 && globalSuggestions[globalHighlightedIndex]) {
+                    e.preventDefault();
+                    const chosen = globalSuggestions[globalHighlightedIndex];
+                    setShowGlobalSuggestions(false);
+                    navigate(`/students?q=${encodeURIComponent(chosen.admissionNumber)}`);
+                  } else if (e.key === 'Escape') {
+                    setShowGlobalSuggestions(false);
+                  }
+                }}
                 placeholder={
                   lang === 'hi'
-                    ? 'प्रवेश संख्या या विद्यार्थी के नाम से खोजें...'
-                    : 'Search by Admission No or Student Name...'
+                    ? 'नाम, प्रवेश सं., पिता का नाम या मोबाइल से खोजें...'
+                    : 'Search by Name, Adm No, Father Name, or Phone...'
                 }
                 className="w-full pl-9 pr-3 py-1.5 text-xs lg:text-sm border border-slate-300 rounded focus:outline-none focus:border-svss-navy"
               />
+              {showGlobalSuggestions && globalSuggestions.length > 0 && (
+                <div
+                  role="listbox"
+                  aria-label="Global Student Search Suggestions"
+                  className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-300 rounded shadow-xl z-50 max-h-64 overflow-y-auto divide-y divide-slate-100 text-xs"
+                >
+                  {globalSuggestions.map((st: any, idx: number) => {
+                    const cls = st.currentEnrollment?.className || '';
+                    const sec = st.currentEnrollment?.sectionName || '';
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        role="option"
+                        aria-selected={idx === globalHighlightedIndex}
+                        onMouseDown={(ev) => {
+                          ev.preventDefault();
+                          setShowGlobalSuggestions(false);
+                          navigate(`/students?q=${encodeURIComponent(st.admissionNumber)}`);
+                        }}
+                        className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 ${
+                          idx === globalHighlightedIndex ? 'bg-blue-50 border-l-4 border-l-svss-navy' : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-900 truncate">
+                            {st.fullName} <span className="font-mono text-[11px] text-svss-navy font-semibold">({st.admissionNumber})</span>
+                          </div>
+                          <div className="text-[11px] text-slate-600 truncate">
+                            {lang === 'hi' ? 'पिता:' : 'Father:'} {st.guardianName}
+                            {st.primaryContactNumber ? ` | 📞 ${st.primaryContactNumber}` : ''}
+                          </div>
+                        </div>
+                        {cls && (
+                          <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-[10px] shrink-0">
+                            {cls}{sec ? `-${sec}` : ''}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <button
               type="submit"

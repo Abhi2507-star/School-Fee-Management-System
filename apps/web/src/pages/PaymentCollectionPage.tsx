@@ -8,7 +8,8 @@
  * Preserves the full 12-step atomic transaction sequence, idempotency key reuse,
  * uncertain-outcome reconciliation, and exact Paise allocation logic.
  */
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from '../layouts/AdminLayout';
 import { StructuredStudentSearch } from '../components/StructuredStudentSearch';
@@ -21,6 +22,7 @@ import {
   hasAnyStructuredCriterion,
   computePaymentWorkflowSteps,
   computeFourStageFeeWorkflow,
+  StudentSummaryItem,
 } from '../utils/workflows';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -59,11 +61,58 @@ export const PaymentCollectionPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [receiptPrintError, setReceiptPrintError] = useState('');
 
+  const [searchParams] = useSearchParams();
+  const studentIdParam = searchParams.get('studentId') || '';
+  const qParam = searchParams.get('q') || '';
+
   const { data: classesData } = useQuery({
     queryKey: ['classes'],
     queryFn: () => apiRequest<{ classes: any[] }>('/classes'),
   });
   const classes = classesData?.classes || [];
+
+  const { data: allActiveStudentsData } = useQuery({
+    queryKey: ['active-students-for-pos-suggestions'],
+    queryFn: () => apiRequest<{ students: any[] }>('/students?status=ACTIVE'),
+    staleTime: 60000,
+  });
+
+  const suggestionsPool: StudentSummaryItem[] = useMemo(() => {
+    return (allActiveStudentsData?.students || []).map((s: any) => ({
+      id: s.id,
+      admissionNumber: s.admissionNumber,
+      fullName: s.fullName,
+      guardianName: s.guardianName || '',
+      primaryContactNumber: s.primaryContactNumber || '',
+      className: s.currentEnrollment?.className || '',
+      section: s.currentEnrollment?.sectionName || '',
+      classId: s.currentEnrollment?.classId || '',
+      sectionId: s.currentEnrollment?.sectionId || '',
+      status: s.status,
+    }));
+  }, [allActiveStudentsData]);
+
+  useEffect(() => {
+    if (studentIdParam) {
+      handleSelectAndVerifyStudent({ id: studentIdParam });
+    } else if (qParam) {
+      const trimmed = qParam.trim();
+      setCriteria((prev) => ({ ...prev, studentName: trimmed }));
+      setIsSearching(true);
+      setHasSearched(true);
+      apiRequest<{ students: any[] }>(`/students?q=${encodeURIComponent(trimmed)}&studentName=${encodeURIComponent(trimmed)}`)
+        .then((res) => {
+          setSearchResults(res.students || []);
+        })
+        .catch((err: any) => {
+          setSearchResults([]);
+          setSearchError(err.message || 'Failed to search students.');
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
+    }
+  }, [studentIdParam, qParam]);
 
   // Prevent Stale Student & Payment State: clear ALL uncommitted state when switching students or resetting
   const clearSelectedStudentAndAttempt = () => {
@@ -117,7 +166,11 @@ export const PaymentCollectionPage: React.FC = () => {
     setHasSearched(true);
     try {
       const params = new URLSearchParams();
-      if (criteria.studentName.trim()) params.set('studentName', criteria.studentName.trim());
+      const kw = criteria.studentName.trim();
+      if (kw) {
+        params.set('q', kw);
+        params.set('studentName', kw);
+      }
       if (criteria.fatherName.trim()) params.set('fatherName', criteria.fatherName.trim());
       if (criteria.classValue.trim()) params.set('classId', criteria.classValue.trim());
       if (criteria.sectionValue.trim()) params.set('sectionId', criteria.sectionValue.trim());
@@ -395,6 +448,11 @@ export const PaymentCollectionPage: React.FC = () => {
             selectedStudentId={selectedStudent?.student?.id || null}
             onSelectStudent={handleSelectAndVerifyStudent}
             isLoadingStudent={isLoadingStudent}
+            suggestionsPool={suggestionsPool}
+            onAutoFillSelect={(st, filled) => {
+              setCriteria(filled);
+              handleSelectAndVerifyStudent(st);
+            }}
           />
 
           {errorMsg && (

@@ -65,6 +65,13 @@ describe('Authentication Route Guard, Structured Student Search, 12-Step Workflo
     });
     expect(byCombo.map((s) => s.id)).toEqual(['st-1']);
 
+    // Consistent keyword matching across all search boxes (Name, Adm No, Father Name)
+    const byAdmKeyword = filterStudentsByStructuredCriteria(sampleStudents, { studentName: '003' });
+    expect(byAdmKeyword.map((s) => s.id)).toEqual(['st-3']);
+
+    const byFatherKeyword = filterStudentsByStructuredCriteria(sampleStudents, { studentName: 'Rajesh' });
+    expect(byFatherKeyword.map((s) => s.id)).toEqual(['st-1']);
+
     // State reducer: never auto-selects first match & clears stale selection on criteria change or reset
     const initial = { query: '', results: [], selectedStudentId: null, hasSearched: false, error: '' };
     const afterSearch = reduceCashierSearchState(initial, {

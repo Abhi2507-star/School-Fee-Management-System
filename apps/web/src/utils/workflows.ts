@@ -123,15 +123,27 @@ export function filterStudentsByStructuredCriteria<T extends StudentSummaryItem>
   return students.filter((st) => {
     if (nameFilter) {
       const admLower = st.admissionNumber.toLowerCase();
+      const nameLower = st.fullName.toLowerCase();
+      const guardianLower = (st.guardianName || '').toLowerCase();
+      const phone = (st.primaryContactNumber || '').toLowerCase();
       const matchesNameOrAdmPrefix =
-        st.fullName.toLowerCase().includes(nameFilter) ||
+        nameLower.includes(nameFilter) ||
         admLower === nameFilter ||
         admLower.startsWith(nameFilter) ||
-        admLower.includes(nameFilter);
+        admLower.includes(nameFilter) ||
+        guardianLower.includes(nameFilter) ||
+        phone.includes(nameFilter);
       if (!matchesNameOrAdmPrefix) return false;
     }
     if (fatherFilter) {
-      if (!(st.guardianName || '').toLowerCase().includes(fatherFilter)) return false;
+      const guardianLower = (st.guardianName || '').toLowerCase();
+      const nameLower = st.fullName.toLowerCase();
+      const admLower = st.admissionNumber.toLowerCase();
+      const matchesFather =
+        guardianLower.includes(fatherFilter) ||
+        nameLower.includes(fatherFilter) ||
+        admLower.includes(fatherFilter);
+      if (!matchesFather) return false;
     }
     if (admFilter) {
       const admLower = st.admissionNumber.toLowerCase();

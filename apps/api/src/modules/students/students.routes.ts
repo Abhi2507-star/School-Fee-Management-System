@@ -142,12 +142,18 @@ export function createStudentsRouter(prisma: PrismaClient) {
           OR: [
             { fullName: { contains: studentName, mode: 'insensitive' } },
             { admissionNumber: { contains: studentName, mode: 'insensitive' } },
+            { guardianName: { contains: studentName, mode: 'insensitive' } },
+            { primaryContactNumber: { contains: studentName } },
           ],
         });
       }
       if (fatherName) {
         andConditions.push({
-          guardianName: { contains: fatherName, mode: 'insensitive' },
+          OR: [
+            { guardianName: { contains: fatherName, mode: 'insensitive' } },
+            { fullName: { contains: fatherName, mode: 'insensitive' } },
+            { admissionNumber: { contains: fatherName, mode: 'insensitive' } },
+          ],
         });
       }
       if (admissionNumber) {
@@ -160,8 +166,23 @@ export function createStudentsRouter(prisma: PrismaClient) {
           enrollments: {
             some: {
               ...(academicYearId ? { academicYearId } : {}),
-              ...(classId ? { classId } : {}),
-              ...(sectionId ? { sectionId } : {}),
+              ...(classId
+                ? {
+                    OR: [
+                      { classId },
+                      { schoolClass: { name: { equals: classId, mode: 'insensitive' } } },
+                      { schoolClass: { code: { equals: classId, mode: 'insensitive' } } },
+                    ],
+                  }
+                : {}),
+              ...(sectionId
+                ? {
+                    OR: [
+                      { sectionId },
+                      { section: { name: { equals: sectionId, mode: 'insensitive' } } },
+                    ],
+                  }
+                : {}),
             },
           },
         });
