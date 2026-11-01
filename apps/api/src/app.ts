@@ -93,15 +93,72 @@ export function createApp(prisma: PrismaClient) {
 
   const router = express.Router();
 
-  // 1. PIN Authentication
-  router.post('/auth/pin', (req, res) => {
-    const { pin } = req.body || {};
-    if (pin === '1111') {
-      res.json({ success: true, role: 'COLLECTOR', roleName: 'फीस जमाकर्ता (Fee Collector)' });
-    } else if (pin === '9999') {
-      res.json({ success: true, role: 'ADMIN', roleName: 'प्रधानाचार्य / व्यवस्थापक (Admin)' });
-    } else {
-      res.status(401).json({ success: false, message: 'गलत 4-अंकों का पिन दर्ज किया गया (Invalid 4-digit PIN)' });
+  // 1. PIN Authentication (Supports dynamic custom PINs stored in DB with fallback to 1111/9999)
+  router.post('/auth/pin', async (req, res, next) => {
+    try {
+      const { pin } = req.body || {};
+      const [adminSetting, collectorSetting] = await Promise.all([
+        prisma.appSetting.findUnique({ where: { key: 'pin_admin' } }),
+        prisma.appSetting.findUnique({ where: { key: 'pin_collector' } }),
+      ]);
+
+      const expectedAdminPin = adminSetting?.value || '9999';
+      const expectedCollectorPin = collectorSetting?.value || '1111';
+
+      if (pin === expectedCollectorPin) {
+        res.json({ success: true, role: 'COLLECTOR', roleName: 'फीस जमाकर्ता (Fee Collector)' });
+      } else if (pin === expectedAdminPin) {
+        res.json({ success: true, role: 'ADMIN', roleName: 'प्रधानाचार्य / व्यवस्थापक (Admin)' });
+      } else {
+        res.status(401).json({ success: false, message: 'गलत 4-अंकों का पिन दर्ज किया गया (Invalid 4-digit PIN)' });
+      }
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  // Settings: Change PINs / Passwords (Admin only)
+  router.post('/settings/pins', async (req, res, next) => {
+    try {
+      const { current_admin_pin, new_admin_pin, new_collector_pin } = req.body || {};
+
+      const adminSetting = await prisma.appSetting.findUnique({ where: { key: 'pin_admin' } });
+      const currentExpectedPin = adminSetting?.value || '9999';
+
+      if (current_admin_pin !== currentExpectedPin) {
+        res.status(403).json({ success: false, message: 'वर्तमान एडमिन पिन गलत है (Current Admin PIN is incorrect).' });
+        return;
+      }
+
+      if (new_admin_pin) {
+        const cleanAdmin = String(new_admin_pin).trim();
+        if (cleanAdmin.length < 4) {
+          res.status(400).json({ success: false, message: 'एडमिन पिन कम से कम 4 अंकों का होना चाहिए (Admin PIN must be at least 4 digits).' });
+          return;
+        }
+        await prisma.appSetting.upsert({
+          where: { key: 'pin_admin' },
+          update: { value: cleanAdmin },
+          create: { key: 'pin_admin', value: cleanAdmin },
+        });
+      }
+
+      if (new_collector_pin) {
+        const cleanCollector = String(new_collector_pin).trim();
+        if (cleanCollector.length < 4) {
+          res.status(400).json({ success: false, message: 'कलेक्टर पिन कम से कम 4 अंकों का होना चाहिए (Collector PIN must be at least 4 digits).' });
+          return;
+        }
+        await prisma.appSetting.upsert({
+          where: { key: 'pin_collector' },
+          update: { value: cleanCollector },
+          create: { key: 'pin_collector', value: cleanCollector },
+        });
+      }
+
+      res.json({ success: true, message: 'पिन / पासवर्ड सफलतापूर्वक बदल दिया गया (PINs updated successfully)!' });
+    } catch (e) {
+      next(e);
     }
   });
 

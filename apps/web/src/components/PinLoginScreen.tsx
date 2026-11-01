@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { UserRole } from '../types';
+import { apiRequest } from '../services/api';
 import { ShieldCheck, UserCheck, KeyRound, AlertCircle, School } from 'lucide-react';
 
 interface PinLoginScreenProps {
@@ -12,6 +13,7 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
   const [selectedRole, setSelectedRole] = useState<UserRole>('COLLECTOR');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleDigit = (digit: string) => {
     if (pin.length < 4) {
@@ -34,18 +36,39 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
     setError('');
   };
 
-  const verifyPin = (testPin: string, role: UserRole) => {
-    if (role === 'COLLECTOR' && testPin === '1111') {
-      onLoginSuccess('COLLECTOR');
-    } else if (role === 'ADMIN' && testPin === '9999') {
-      onLoginSuccess('ADMIN');
-    } else {
-      setError(
-        lang === 'hi'
-          ? 'गलत पिन! (Fee Collector हेतु 1111, Admin हेतु 9999 दर्ज करें)'
-          : 'Invalid PIN! (Use 1111 for Collector, 9999 for Admin)'
-      );
-      setPin('');
+  const verifyPin = async (testPin: string, role: UserRole) => {
+    setIsVerifying(true);
+    try {
+      const res = await apiRequest<{ success: boolean; role: UserRole }>('/auth/pin', {
+        method: 'POST',
+        body: JSON.stringify({ pin: testPin }),
+      });
+
+      if (res.success && res.role === role) {
+        onLoginSuccess(res.role);
+      } else if (res.success && res.role !== role) {
+        setError(
+          lang === 'hi'
+            ? `यह पिन ${res.role === 'ADMIN' ? 'Admin' : 'Collector'} का है। कृपया ऊपर सही टैब चुनें।`
+            : `This PIN belongs to ${res.role}. Please select the matching role above.`
+        );
+        setPin('');
+      } else {
+        setError(lang === 'hi' ? 'गलत 4-अंकों का पिन दर्ज किया गया!' : 'Invalid 4-digit PIN!');
+        setPin('');
+      }
+    } catch {
+      // Local fallback for offline mode
+      if (role === 'COLLECTOR' && testPin === '1111') {
+        onLoginSuccess('COLLECTOR');
+      } else if (role === 'ADMIN' && testPin === '9999') {
+        onLoginSuccess('ADMIN');
+      } else {
+        setError(lang === 'hi' ? 'गलत पिन दर्ज किया गया!' : 'Invalid PIN entered!');
+        setPin('');
+      }
+    } finally {
+      setIsVerifying(false);
     }
   };
 

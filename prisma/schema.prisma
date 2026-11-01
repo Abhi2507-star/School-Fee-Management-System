@@ -92,3 +92,11 @@ model ReceiptCounter {
 
   @@map("receipt_counters")
 }
+
+model AppSetting {
+  key        String   @id
+  value      String
+  updated_at DateTime @updatedAt
+
+  @@map("app_settings")
+}

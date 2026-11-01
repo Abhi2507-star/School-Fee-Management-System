@@ -13,6 +13,7 @@ import { ClassPromotionTab } from './components/ClassPromotionTab';
 import { FeeStructureEditor } from './components/FeeStructureEditor';
 import { ReportsAndDuesView } from './components/ReportsAndDuesView';
 import { ExcelExportView } from './components/ExcelExportView';
+import { SettingsModal } from './components/SettingsModal';
 import {
   School,
   Search,
@@ -26,6 +27,7 @@ import {
   Sparkles,
   Calendar,
   Filter,
+  Settings,
 } from 'lucide-react';
 
 function MainApp() {
@@ -62,6 +64,7 @@ function MainApp() {
   const [showStudentForm, setShowStudentForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [historyStudent, setHistoryStudent] = useState<Student | null>(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const handleLogin = (role: UserRole) => {
     setCurrentUserRole(role);
@@ -183,6 +186,17 @@ function MainApp() {
             >
               {lang === 'hi' ? 'English में देखें' : 'हिंदी में देखें'}
             </button>
+
+            {/* Admin Settings Wheel (Change Password / PIN) */}
+            {isAdmin && (
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="p-1.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition active:rotate-45"
+                title={lang === 'hi' ? 'सेटिंग्स एवं पासवर्ड बदलें' : 'Settings & Change PIN'}
+              >
+                <Settings size={18} className="hover:rotate-90 transition-transform duration-300" />
+              </button>
+            )}
 
             {/* Switch Role / Logout */}
             <button
@@ -458,6 +472,12 @@ function MainApp() {
           }}
         />
       )}
+
+      {/* Admin Settings Wheel Modal (Change PINs / Passwords) */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
     </div>
   );
 }
