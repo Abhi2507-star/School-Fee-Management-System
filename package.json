@@ -15,9 +15,10 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=@svss/web",
     "dev": "concurrently \"npm run dev --workspace=@svss/api\" \"npm run dev --workspace=@svss/web\"",
-    "build": "npm run build --workspace=@svss/api && npm run build --workspace=@svss/web",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "build": "prisma generate --schema=./prisma/schema.prisma && npm run build --workspace=@svss/api && npm run build --workspace=@svss/web",
     "build:web": "npm run build --workspace=@svss/web",
-    "build:api": "npm run build --workspace=@svss/api",
+    "build:api": "prisma generate --schema=./prisma/schema.prisma && npm run build --workspace=@svss/api",
     "start": "npm run start --workspace=@svss/api",
     "db:generate": "prisma generate --schema=./prisma/schema.prisma",
     "db:push": "prisma db push --schema=./prisma/schema.prisma",
