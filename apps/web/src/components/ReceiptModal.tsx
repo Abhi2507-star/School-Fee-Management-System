@@ -50,53 +50,53 @@ ${itemsSummary}
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full my-auto flex flex-col max-h-[96vh] overflow-hidden border border-slate-200">
         {/* Top Header - No print */}
-        <div className="no-print bg-gradient-to-r from-emerald-700 to-teal-800 text-white px-5 py-3.5 flex items-center justify-between">
+        <div className="no-print bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between shrink-0 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-pulse"></span>
-            <span className="font-extrabold text-sm tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span className="font-extrabold text-xs tracking-wide">
               {lang === 'hi' ? 'फीस रसीद (Fee Receipt)' : 'Official Fee Receipt'}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
+            className="text-slate-400 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
             title={t('close')}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Printable Receipt Paper */}
-        <div id="printable-receipt" className="p-6 bg-white text-slate-800">
-          <div className="border-2 border-emerald-800 p-5 rounded-xl bg-gradient-to-b from-emerald-50/20 to-white">
+        <div id="printable-receipt" className="p-3 sm:p-4 bg-white text-slate-800 overflow-y-auto flex-1">
+          <div className="border border-emerald-800 p-3 sm:p-4 rounded-xl bg-gradient-to-b from-emerald-50/15 to-white">
             {/* School Branding */}
-            <div className="text-center border-b-2 border-emerald-700 pb-3 mb-4">
-              <div className="flex items-center justify-center mb-2">
+            <div className="text-center border-b border-emerald-700/60 pb-2.5 mb-2.5">
+              <div className="flex items-center justify-center mb-1.5">
                 <img
                   src="/logo.png"
                   alt="SVSS Logo"
-                  className="w-16 h-16 rounded-full object-contain bg-white p-0.5 shadow-sm border border-emerald-800/30"
+                  className="w-12 h-12 object-contain bg-white rounded-full p-0.5 shadow-xs border border-emerald-800/20"
                 />
               </div>
-              <h2 className="text-lg font-black text-emerald-900 tracking-tight">
+              <h2 className="text-base font-black text-emerald-950 tracking-tight leading-tight">
                 स्वामी विवेकानन्द शिक्षण संस्थान
               </h2>
-              <div className="text-xs font-bold text-slate-700 mt-0.5">
+              <div className="text-[10px] font-bold text-slate-600 mt-0.5 leading-tight">
                 SWAMI VIVEKANAND SIKSHAN SANSTHAN
               </div>
-              <p className="text-[11px] text-slate-600 mt-1">
+              <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">
                 हरीपुर, करौंदी कलां, कादीपुर, सुल्तानपुर (उ.प्र.) — 228161
               </p>
-              <div className="inline-block mt-2 bg-emerald-800 text-white text-[11px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider">
+              <div className="inline-block mt-1.5 bg-emerald-800 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                 {lang === 'hi' ? 'फीस जमा रसीद (FEE RECEIPT)' : 'OFFICIAL FEE RECEIPT'}
               </div>
             </div>
 
             {/* Receipt Meta */}
-            <div className="grid grid-cols-2 gap-2 text-xs mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="grid grid-cols-2 gap-1 text-[11px] mb-2.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
               <div>
                 <span className="text-slate-500">{t('receiptNo')}:</span>
                 <span className="font-mono font-bold text-emerald-800 ml-1">
@@ -126,29 +126,29 @@ ${itemsSummary}
                 <span className="font-semibold text-slate-800 ml-1">{receipt.village}</span>
               </div>
               {receipt.mobile && (
-                <div className="col-span-2 text-slate-600 text-[11px]">
+                <div className="col-span-2 text-slate-600 text-[10px]">
                   <span>{t('mobile')}:</span> <strong>{receipt.mobile}</strong>
                 </div>
               )}
             </div>
 
             {/* Items Table */}
-            <table className="w-full text-xs border-collapse mb-4">
+            <table className="w-full text-xs border-collapse mb-2.5">
               <thead>
-                <tr className="bg-emerald-100 text-emerald-950 border-b border-emerald-300">
-                  <th className="py-1.5 px-2 text-left w-10">#</th>
-                  <th className="py-1.5 px-2 text-left">{lang === 'hi' ? 'मद / महीना' : 'Fee Head / Month'}</th>
-                  <th className="py-1.5 px-2 text-right">{lang === 'hi' ? 'राशि (₹)' : 'Amount (₹)'}</th>
+                <tr className="bg-emerald-100/80 text-emerald-950 border-b border-emerald-300">
+                  <th className="py-1 px-1.5 text-left w-8">#</th>
+                  <th className="py-1 px-1.5 text-left">{lang === 'hi' ? 'मद / महीना' : 'Fee Head / Month'}</th>
+                  <th className="py-1 px-1.5 text-right">{lang === 'hi' ? 'राशि (₹)' : 'Amount (₹)'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-slate-100">
                 {receipt.items.map((item, idx) => (
                   <tr key={idx} className="hover:bg-slate-50">
-                    <td className="py-1.5 px-2 text-slate-500">{idx + 1}</td>
-                    <td className="py-1.5 px-2 font-semibold text-slate-800">
+                    <td className="py-1 px-1.5 text-slate-500">{idx + 1}</td>
+                    <td className="py-1 px-1.5 font-semibold text-slate-800">
                       {lang === 'hi' ? item.labelHi : item.labelEn}
                     </td>
-                    <td className="py-1.5 px-2 text-right font-mono font-bold text-slate-900">
+                    <td className="py-1 px-1.5 text-right font-mono font-bold text-slate-900">
                       ₹{item.amount_paid}
                     </td>
                   </tr>
@@ -157,20 +157,20 @@ ${itemsSummary}
             </table>
 
             {/* Total */}
-            <div className="border-t-2 border-emerald-700 pt-2.5">
-              <div className="flex justify-between items-center text-sm font-black text-emerald-900">
+            <div className="border-t border-emerald-700/60 pt-2">
+              <div className="flex justify-between items-center text-xs font-black text-emerald-900">
                 <span>{lang === 'hi' ? 'कुल प्राप्त राशि (Total Paid):' : 'Total Amount Paid:'}</span>
-                <span className="text-base font-mono bg-emerald-100 px-3 py-1 rounded-lg">
+                <span className="text-sm font-mono bg-emerald-100 px-2.5 py-0.5 rounded-md">
                   ₹{receipt.total_amount}
                 </span>
               </div>
-              <div className="text-[11px] text-slate-600 mt-1 italic">
+              <div className="text-[10px] text-slate-600 mt-0.5 italic">
                 {amountToIndianWords(receipt.total_amount)}
               </div>
             </div>
 
             {/* Signature & Stamp */}
-            <div className="mt-8 pt-4 border-t border-dashed border-slate-300 flex justify-between items-end text-[11px] text-slate-500">
+            <div className="mt-4 pt-2 border-t border-dashed border-slate-300 flex justify-between items-end text-[10px] text-slate-500">
               <div>
                 <div>जमाकर्ता हस्ताक्षर</div>
                 <div className="text-[9px] text-slate-400">Depositor Signature</div>
@@ -183,27 +183,27 @@ ${itemsSummary}
           </div>
         </div>
 
-        {/* 3 Action Buttons - No print */}
-        <div className="no-print bg-slate-100 px-5 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
+        {/* 3 Action Buttons - No print - ALWAYS PINNED AND VISIBLE */}
+        <div className="no-print bg-slate-50 px-4 py-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition transform active:scale-95"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition active:scale-95"
             >
-              <Printer size={16} />
+              <Printer size={14} />
               <span>{t('printReceipt')}</span>
             </button>
             <button
               onClick={handleWhatsApp}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-md transition transform active:scale-95"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-lg shadow-xs transition active:scale-95"
             >
-              <MessageCircle size={16} />
+              <MessageCircle size={14} />
               <span>{t('sendWhatsApp')}</span>
             </button>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-300 hover:bg-slate-400 text-slate-800 font-bold text-xs rounded-xl transition"
+            className="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-lg transition"
           >
             {t('close')}
           </button>

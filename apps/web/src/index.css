@@ -97,4 +97,14 @@
   .no-print {
     display: none !important;
   }
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #printable-receipt {
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 0 !important;
+  }
 }
