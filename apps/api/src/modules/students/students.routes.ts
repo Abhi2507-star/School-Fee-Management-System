@@ -440,8 +440,13 @@ export function createStudentsRouter(prisma: PrismaClient) {
       const studentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const academicYearId = typeof req.query.academicYearId === 'string' ? req.query.academicYearId : undefined;
 
-      const student = await prisma.student.findUnique({
-        where: { id: studentId },
+      const student = await prisma.student.findFirst({
+        where: {
+          OR: [
+            { id: studentId },
+            { admissionNumber: studentId },
+          ],
+        },
         include: {
           enrollments: {
             where: academicYearId ? { academicYearId } : undefined,
@@ -552,6 +557,165 @@ export function createStudentsRouter(prisma: PrismaClient) {
         payments: student.payments,
         concessions: student.concessions,
         refunds: allRefunds,
+        auditHistory: auditLogs,
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Individual Student Record & Full Ledger (used by Payment Collection POS & Student Profile)
+  router.get('/:id', requireAuth, requirePermission('STUDENT_VIEW'), async (req, res, next) => {
+    try {
+      const studentId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const academicYearId = typeof req.query.academicYearId === 'string' ? req.query.academicYearId : undefined;
+
+      const student = await prisma.student.findFirst({
+        where: {
+          OR: [
+            { id: studentId },
+            { admissionNumber: studentId },
+          ],
+        },
+        include: {
+          enrollments: {
+            where: academicYearId ? { academicYearId } : undefined,
+            include: {
+              academicYear: true,
+              schoolClass: true,
+              section: true,
+              studentCharges: {
+                include: {
+                  feeHead: true,
+                  paymentAllocations: {
+                    include: { payment: true },
+                  },
+                },
+                orderBy: { dueDate: 'asc' },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          },
+          concessions: {
+            where: academicYearId ? { enrollment: { academicYearId } } : undefined,
+            include: { studentCharge: { include: { feeHead: true } } },
+            orderBy: { requestedAt: 'desc' },
+          },
+          payments: {
+            where: academicYearId ? { academicYearId } : undefined,
+            include: {
+              allocations: { include: { studentCharge: { include: { feeHead: true } } } },
+              receipt: true,
+              reversals: true,
+              refunds: true,
+            },
+            orderBy: { paidAt: 'desc' },
+          },
+          studentCredits: {
+            where: { isActive: true },
+          },
+        },
+      });
+
+      if (!student) {
+        res.status(404).json({ code: 'STUDENT_NOT_FOUND', message: 'Student record not found.' });
+        return;
+      }
+
+      const auditLogs = await prisma.auditLog.findMany({
+        where: { entityType: 'STUDENT', entityId: student.id },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+
+      const charges = student.enrollments.flatMap((e) => e.studentCharges);
+      const creditPaise = student.studentCredits.reduce((acc, c) => acc + toPaise(c.remainingAmount.toString()), 0);
+      const advanceCreditBalance = fromPaise(creditPaise);
+
+      const ledger = calculateStudentLedger(
+        student.id,
+        charges.map((c) => ({
+          id: c.id,
+          studentId: student.id,
+          enrollmentId: c.enrollmentId,
+          feeHeadCode: c.feeHead.code,
+          feeHeadName: c.feeHead.name,
+          feePeriodCode: c.feePeriodCode,
+          feePeriodLabel: c.feePeriodLabel,
+          dueDate: c.dueDate.toISOString().slice(0, 10),
+          originalAmount: c.originalAmount.toString(),
+          concessionAmount: c.concessionAmount.toString(),
+          adjustmentAmount: c.adjustmentAmount.toString(),
+          status: c.status,
+        })),
+        charges.flatMap((c) =>
+          c.paymentAllocations.map((a) => ({
+            id: a.id,
+            paymentId: a.paymentId,
+            studentChargeId: a.studentChargeId,
+            allocatedAmount: a.allocatedAmount.toString(),
+            isActive: a.isActive,
+            paymentStatus: a.payment.status,
+            paymentMethod: a.payment.paymentMethod,
+          }))
+        ),
+        advanceCreditBalance
+      );
+
+      const allRefunds = student.payments.flatMap((p) => p.refunds);
+      const receipts = student.payments.map((p) => p.receipt).filter(Boolean);
+      const includeNotes = canViewRestrictedNotes(req.staff!.roles);
+
+      const feeStructures = student.enrollments[0]
+        ? await prisma.feeStructure.findMany({
+            where: {
+              classId: student.enrollments[0].classId,
+              academicYearId: student.enrollments[0].academicYearId,
+            },
+            include: {
+              academicYear: true,
+              schoolClass: true,
+              section: true,
+              items: { include: { feeHead: true } },
+            },
+          })
+        : [];
+
+      res.json({
+        student: {
+          ...student,
+          className: student.enrollments[0]?.schoolClass?.name || '',
+          section: student.enrollments[0]?.section?.name || '',
+          receipts,
+        },
+        overview: {
+          id: student.id,
+          admissionNumber: student.admissionNumber,
+          fullName: student.fullName,
+          dateOfBirth: student.dateOfBirth.toISOString().slice(0, 10),
+          gender: student.gender,
+          guardianName: student.guardianName,
+          guardianRelation: student.guardianRelationship,
+          primaryContactNumber: student.primaryContactNumber,
+          secondaryContactNumber: student.secondaryContactNumber,
+          address: student.address,
+          admissionDate: student.admissionDate.toISOString().slice(0, 10),
+          status: student.status,
+          advanceCreditBalance,
+          restrictedNotes: includeNotes ? student.restrictedNotes : undefined,
+          enrollments: student.enrollments,
+          payments: student.payments,
+          receipts,
+          concessions: student.concessions,
+          studentCredits: student.studentCredits,
+        },
+        academicHistory: student.enrollments,
+        ledger,
+        payments: student.payments,
+        receipts,
+        concessions: student.concessions,
+        refunds: allRefunds,
+        feeStructures,
         auditHistory: auditLogs,
       });
     } catch (err) {

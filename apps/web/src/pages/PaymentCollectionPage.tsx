@@ -189,13 +189,23 @@ export const PaymentCollectionPage: React.FC = () => {
     clearSelectedStudentAndAttempt();
     setIsLoadingStudent(true);
     try {
-      const detail = await apiRequest<any>(`/students/${studentSummary.id}`);
-      setSelectedStudent(detail);
-      const unpaidIds = (detail.ledger?.charges || [])
+      const targetId = studentSummary?.id || studentSummary?.admissionNumber || (typeof studentSummary === 'string' ? studentSummary : '');
+      const detail = await apiRequest<any>(`/students/${encodeURIComponent(targetId)}`);
+      const normalizedStudent = detail.student || {
+        ...detail.overview,
+        enrollments: detail.academicHistory || detail.overview?.enrollments || [],
+      };
+      const normalizedDetail = {
+        ...detail,
+        student: normalizedStudent,
+        ledger: detail.ledger,
+      };
+      setSelectedStudent(normalizedDetail);
+      const unpaidIds = (normalizedDetail.ledger?.charges || [])
         .filter((c: any) => toPaiseInt(c.outstandingAmount) > 0)
-        .map((c: any) => c.chargeId);
+        .map((c: any) => c.chargeId || c.id);
       setSelectedChargeIds(unpaidIds);
-      setAttemptIdempotencyKey(createStablePaymentAttemptKey(detail.student.id));
+      setAttemptIdempotencyKey(createStablePaymentAttemptKey(normalizedDetail.student.id));
     } catch (err: any) {
       setErrorMsg(err.message || (lang === 'hi' ? 'विद्यार्थी का विवरण लोड नहीं हो सका।' : 'Failed to load student ledger.'));
     } finally {
