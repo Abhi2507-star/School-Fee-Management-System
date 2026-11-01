@@ -74,20 +74,20 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-orange-50/40 to-blue-50/50 flex flex-col justify-between p-4">
+    <div className="h-screen max-h-screen bg-gradient-to-br from-slate-100 via-orange-50/30 to-blue-50/40 flex flex-col justify-between p-2 sm:p-3 overflow-hidden select-none">
       {/* Top Bar with Language Toggle */}
-      <header className="max-w-4xl w-full mx-auto flex items-center justify-between py-2">
-        <div className="flex items-center gap-3">
+      <header className="max-w-xl w-full mx-auto flex items-center justify-between py-1 px-1 shrink-0">
+        <div className="flex items-center gap-2">
           <img
             src="/logo.png"
             alt="SVSS Logo"
-            className="w-12 h-12 rounded-full object-contain bg-white p-0.5 shadow-md border border-amber-500/30"
+            className="w-9 h-9 object-contain bg-white rounded-lg p-0.5 shadow-xs border border-slate-200"
           />
           <div>
-            <h1 className="font-black text-slate-900 text-sm md:text-base leading-tight">
+            <h1 className="font-black text-slate-900 text-xs sm:text-sm leading-tight">
               {t('schoolName')}
             </h1>
-            <p className="text-[11px] text-slate-500 font-medium">
+            <p className="text-[10px] text-slate-500 font-medium leading-none">
               {t('schoolSub')}
             </p>
           </div>
@@ -95,29 +95,27 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
 
         <button
           onClick={toggleLang}
-          className="px-3.5 py-1.5 rounded-xl border-2 border-orange-600 bg-white hover:bg-orange-50 text-orange-700 font-extrabold text-xs shadow-sm transition transform active:scale-95 flex items-center gap-1.5"
+          className="px-2.5 py-1 rounded-lg border border-orange-500 bg-white hover:bg-orange-50 text-orange-700 font-bold text-xs shadow-xs transition active:scale-95 flex items-center gap-1"
         >
           <span>🌐</span>
           <span>{lang === 'hi' ? 'English' : 'हिंदी'}</span>
         </button>
       </header>
 
-      {/* Main Login Card */}
-      <main className="max-w-sm w-full mx-auto my-auto bg-white rounded-2xl shadow-xl border border-slate-200/90 p-5 md:p-6 space-y-4">
+      {/* Main Login Card - Compact & Guaranteed to fit on 768p and scaled screens */}
+      <main className="max-w-[320px] w-full mx-auto my-auto bg-white rounded-xl shadow-md border border-slate-200/90 p-3.5 space-y-2.5">
         <div className="text-center space-y-0.5">
-          <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 mx-auto flex items-center justify-center mb-1.5 shadow-inner">
-            <KeyRound size={22} />
+          <div className="inline-flex items-center justify-center gap-1.5 text-orange-600 font-black text-xs sm:text-sm">
+            <KeyRound size={15} />
+            <span>{t('pinTitle')}</span>
           </div>
-          <h2 className="text-lg font-black text-slate-900 tracking-tight">
-            {t('pinTitle')}
-          </h2>
-          <p className="text-[11px] text-slate-500">
-            {lang === 'hi' ? 'कृपया अपनी भूमिका चुनें और 4 अंकों का पिन दर्ज करें' : 'Select your role and enter your 4-digit PIN'}
+          <p className="text-[10px] text-slate-500">
+            {lang === 'hi' ? 'भूमिका चुनें और 4 अंकों का पिन दर्ज करें' : 'Select role and enter 4-digit PIN'}
           </p>
         </div>
 
-        {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+        {/* Role Selector Tabs - Clean, no duplicate labels */}
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-lg">
           <button
             type="button"
             onClick={() => {
@@ -125,15 +123,17 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
               setPin('');
               setError('');
             }}
-            className={`py-2 px-2 rounded-lg text-xs font-black transition flex flex-col items-center gap-0.5 ${
+            className={`py-1.5 px-2 rounded-md transition flex flex-col items-center justify-center leading-tight ${
               selectedRole === 'COLLECTOR'
                 ? 'bg-orange-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            <UserCheck size={18} />
-            <span className="font-extrabold text-xs">{t('collectorRole')}</span>
-            <span className="text-[9px] opacity-80">{lang === 'hi' ? 'फीस जमाकर्ता' : 'Fee Collector'}</span>
+            <div className="flex items-center gap-1">
+              <UserCheck size={14} />
+              <span className="font-extrabold text-xs">{t('collectorRole')}</span>
+            </div>
+            <span className="text-[9px] opacity-75">{lang === 'hi' ? 'Fee Collector' : 'फीस जमाकर्ता'}</span>
           </button>
 
           <button
@@ -143,28 +143,30 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
               setPin('');
               setError('');
             }}
-            className={`py-2 px-2 rounded-lg text-xs font-black transition flex flex-col items-center gap-0.5 ${
+            className={`py-1.5 px-2 rounded-md transition flex flex-col items-center justify-center leading-tight ${
               selectedRole === 'ADMIN'
                 ? 'bg-blue-800 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            <ShieldCheck size={18} />
-            <span className="font-extrabold text-xs">{t('adminRole')}</span>
-            <span className="text-[9px] opacity-80">{lang === 'hi' ? 'प्रधानाचार्य' : 'Principal'}</span>
+            <div className="flex items-center gap-1">
+              <ShieldCheck size={14} />
+              <span className="font-extrabold text-xs">{t('adminRole')}</span>
+            </div>
+            <span className="text-[9px] opacity-75">{lang === 'hi' ? 'Principal / Admin' : 'प्रधानाचार्य'}</span>
           </button>
         </div>
 
         {/* PIN Indicators */}
-        <div className="flex justify-center items-center gap-3 py-1">
+        <div className="flex justify-center items-center gap-2.5 py-0.5">
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
+              className={`w-3 h-3 rounded-full transition-all duration-150 ${
                 pin.length > i
                   ? selectedRole === 'COLLECTOR'
-                    ? 'bg-orange-600 scale-110'
-                    : 'bg-blue-800 scale-110'
+                    ? 'bg-orange-600 scale-110 ring-2 ring-orange-200'
+                    : 'bg-blue-800 scale-110 ring-2 ring-blue-200'
                   : 'bg-slate-200 border border-slate-300'
               }`}
             />
@@ -172,20 +174,20 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
         </div>
 
         {error && (
-          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs flex items-center gap-1.5 justify-center font-medium animate-shake">
-            <AlertCircle size={14} className="shrink-0" />
+          <div className="p-1.5 bg-red-50 border border-red-200 rounded-md text-red-700 text-[11px] flex items-center gap-1 justify-center font-medium animate-shake">
+            <AlertCircle size={13} className="shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Big Touch Keypad */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
+        {/* Keypad - Compact touch buttons */}
+        <div className="grid grid-cols-3 gap-1.5 pt-0.5">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
             <button
               key={digit}
               type="button"
               onClick={() => handleDigit(digit)}
-              className="py-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-800 text-lg font-bold rounded-xl border border-slate-200 shadow-xs transition active:scale-95"
+              className="h-10 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-800 text-base font-bold rounded-lg border border-slate-200 shadow-xs transition active:scale-95 flex items-center justify-center"
             >
               {digit}
             </button>
@@ -194,7 +196,7 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
           <button
             type="button"
             onClick={handleClear}
-            className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-black rounded-xl transition active:scale-95"
+            className="h-10 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg transition active:scale-95 flex items-center justify-center"
           >
             {lang === 'hi' ? 'साफ़' : 'Clear'}
           </button>
@@ -202,7 +204,7 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
           <button
             type="button"
             onClick={() => handleDigit('0')}
-            className="py-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-800 text-lg font-bold rounded-xl border border-slate-200 shadow-xs transition active:scale-95"
+            className="h-10 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-800 text-base font-bold rounded-lg border border-slate-200 shadow-xs transition active:scale-95 flex items-center justify-center"
           >
             0
           </button>
@@ -210,7 +212,7 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
           <button
             type="button"
             onClick={handleBackspace}
-            className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-black rounded-xl transition active:scale-95 flex items-center justify-center"
+            className="h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg transition active:scale-95 flex items-center justify-center"
           >
             ⌫
           </button>
@@ -218,7 +220,7 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-slate-500 py-3">
+      <footer className="text-center text-[10px] text-slate-400 py-1 shrink-0">
         © 2026 {t('schoolName')} — {t('tagline')}
       </footer>
     </div>
