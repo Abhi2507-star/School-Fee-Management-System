@@ -837,9 +837,15 @@
                 <span class="text-xs font-bold uppercase text-slate-500">Selected Student 9-Tab Profile:</span>
                 <span id="profileHeaderTitle" class="ml-2 text-sm font-extrabold text-blue-900"></span>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button id="collectFeeFromProfileBtn" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1.5">
-                  3. Collect Fee (फीस जमा करें) →
+              <div class="flex flex-wrap items-center gap-2" id="profileHeaderActionsGroup">
+                <button id="printTotalFeesDetailBtn" type="button" class="hidden bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1.5">
+                  📄 Print Total Fees Detail (पूर्ण फीस विवरण)
+                </button>
+                <button id="reprintRecentReceiptBtn" type="button" class="hidden bg-blue-900 hover:bg-blue-800 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1.5">
+                  🖨️ Reprint Recent Receipt (रसीद पुनः प्रिंट)
+                </button>
+                <button id="collectFeeFromProfileBtn" type="button" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1.5">
+                  💳 3. Collect Fee (फीस जमा करें) →
                 </button>
                 <button id="editSelectedStudentBtn" type="button" class="border border-blue-900 text-blue-900 hover:bg-blue-50 px-3 py-1 rounded text-xs font-semibold">
                   Edit Student Profile
@@ -2501,6 +2507,28 @@
         return;
       }
       document.getElementById('profileHeaderTitle').textContent = `${st.fullName} (${st.admissionNumber}) — ${st.className}-${st.section} | Session ${state.selectedSession} Outstanding: ${formatINR(ledger.outstanding)}`;
+
+      const isCleared = (ledger.outstanding || 0) <= 0;
+      const printBtn = document.getElementById('printTotalFeesDetailBtn');
+      const reprintBtn = document.getElementById('reprintRecentReceiptBtn');
+      const collectBtn = document.getElementById('collectFeeFromProfileBtn');
+      if (printBtn) {
+        printBtn.classList.toggle('hidden', !isCleared);
+        printBtn.onclick = () => window.open(`/api/v1/students/${st.id}/fees-detail?format=HTML`, '_blank');
+      }
+      if (reprintBtn) {
+        const studentPayments = (state.payments || []).filter(p => p.studentId === st.id);
+        if (studentPayments.length > 0) {
+          reprintBtn.classList.remove('hidden');
+          const lastPayment = studentPayments[studentPayments.length - 1];
+          reprintBtn.onclick = () => window.open(`/api/v1/payments/${lastPayment.id}/receipt?format=HTML&reprint=true&layout=A4`, '_blank');
+        } else {
+          reprintBtn.classList.add('hidden');
+        }
+      }
+      if (collectBtn) {
+        collectBtn.classList.toggle('hidden', isCleared);
+      }
 
       const tab = state.selectedProfileTab;
 
