@@ -14,8 +14,10 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   const handleDigit = (digit: string) => {
+    if (isLocked || isVerifying) return;
     if (pin.length < 4) {
       const next = pin + digit;
       setPin(next);
@@ -27,11 +29,13 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
   };
 
   const handleBackspace = () => {
+    if (isLocked || isVerifying) return;
     setPin((prev) => prev.slice(0, -1));
     setError('');
   };
 
   const handleClear = () => {
+    if (isLocked || isVerifying) return;
     setPin('');
     setError('');
   };
@@ -49,23 +53,20 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
       } else if (res.success && res.role !== role) {
         setError(
           lang === 'hi'
-            ? `यह पिन ${res.role === 'ADMIN' ? 'Admin' : 'Collector'} का है। कृपया ऊपर सही टैब चुनें।`
+            ? `यह पिन ${res.role === 'ADMIN' ? 'प्रधानाचार्य / Admin' : 'फीस जमाकर्ता'} का है। कृपया ऊपर सही भूमिका चुनें।`
             : `This PIN belongs to ${res.role}. Please select the matching role above.`
         );
         setPin('');
       } else {
-        setError(lang === 'hi' ? 'गलत 4-अंकों का पिन दर्ज किया गया!' : 'Invalid 4-digit PIN!');
-        setPin('');
-      }
-    } catch {
-      // Local fallback for offline mode
-      if (role === 'COLLECTOR' && testPin === '1111') {
-        onLoginSuccess('COLLECTOR');
-      } else if (role === 'ADMIN' && testPin === '9999') {
-        onLoginSuccess('ADMIN');
-      } else {
         setError(lang === 'hi' ? 'गलत पिन दर्ज किया गया!' : 'Invalid PIN entered!');
         setPin('');
+      }
+    } catch (err: any) {
+      const errorMsg = err?.message || 'गलत पिन दर्ज किया गया!';
+      setError(errorMsg);
+      setPin('');
+      if (err?.status === 429 || errorMsg.includes('लॉक') || errorMsg.includes('locked')) {
+        setIsLocked(true);
       }
     } finally {
       setIsVerifying(false);
@@ -122,15 +123,15 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
               setPin('');
               setError('');
             }}
-            className={`py-3 px-2.5 rounded-xl text-xs font-black transition flex flex-col items-center gap-1 ${
+            className={`py-3 px-2.5 rounded-xl text-xs font-black transition flex flex-col items-center gap-1.5 ${
               selectedRole === 'COLLECTOR'
                 ? 'bg-orange-600 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
             }`}
           >
-            <UserCheck size={18} />
-            <span>{t('collectorRole')}</span>
-            <span className="text-[10px] font-normal opacity-90">(PIN: 1111)</span>
+            <UserCheck size={20} />
+            <span className="font-extrabold text-sm">{t('collectorRole')}</span>
+            <span className="text-[10px] opacity-80">{lang === 'hi' ? 'फीस जमाकर्ता' : 'Fee Collector'}</span>
           </button>
 
           <button
@@ -140,15 +141,15 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
               setPin('');
               setError('');
             }}
-            className={`py-3 px-2.5 rounded-xl text-xs font-black transition flex flex-col items-center gap-1 ${
+            className={`py-3 px-2.5 rounded-xl text-xs font-black transition flex flex-col items-center gap-1.5 ${
               selectedRole === 'ADMIN'
                 ? 'bg-blue-800 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
             }`}
           >
-            <ShieldCheck size={18} />
-            <span>{t('adminRole')}</span>
-            <span className="text-[10px] font-normal opacity-90">(PIN: 9999)</span>
+            <ShieldCheck size={20} />
+            <span className="font-extrabold text-sm">{t('adminRole')}</span>
+            <span className="text-[10px] opacity-80">{lang === 'hi' ? 'प्रधानाचार्य / व्यवस्थापक' : 'Principal / Admin'}</span>
           </button>
         </div>
 

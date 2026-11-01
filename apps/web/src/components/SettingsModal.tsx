@@ -123,7 +123,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               maxLength={8}
               value={currentAdminPin}
               onChange={(e) => setCurrentAdminPin(e.target.value)}
-              placeholder={lang === 'hi' ? 'डिफ़ॉल्ट: 9999' : 'Default: 9999'}
+              placeholder={lang === 'hi' ? 'वर्तमान एडमिन पिन दर्ज करें' : 'Enter current Admin PIN'}
               className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <p className="text-[10px] text-slate-500">
@@ -180,7 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               maxLength={8}
               value={newCollectorPin}
               onChange={(e) => setNewCollectorPin(e.target.value)}
-              placeholder={lang === 'hi' ? 'नया कलेक्टर पिन (डिफ़ॉल्ट 1111 था)' : 'New Collector PIN (was 1111)'}
+              placeholder={lang === 'hi' ? 'नया कलेक्टर पिन दर्ज करें' : 'Enter new Collector PIN'}
               className="w-full border border-emerald-200 rounded-xl px-3 py-2 text-xs font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <p className="text-[10px] text-emerald-800">
@@ -215,3 +215,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     </div>
   );
 };
+

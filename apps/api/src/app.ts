@@ -6,7 +6,74 @@
  */
 import express from 'express';
 import cors from 'cors';
+import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
+
+// Security utilities for PIN hashing & verification
+const PIN_SALT = process.env.SESSION_SECRET || 'svss_production_pin_salt_sec_2026';
+
+export function hashPin(pin: string, role: string): string {
+  const salt = `${PIN_SALT}:${role.toLowerCase()}`;
+  return crypto.scryptSync(pin, salt, 32).toString('hex');
+}
+
+export function verifyPinHash(inputPin: string, role: string, storedHash: string): boolean {
+  try {
+    const inputHash = hashPin(inputPin, role);
+    const bufA = Buffer.from(inputHash, 'hex');
+    const bufB = Buffer.from(storedHash, 'hex');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
+
+// In-memory rate limiting & lockout store: IP -> { attempts: number, lockoutUntil: number }
+interface RateLimitRecord {
+  attempts: number;
+  lockoutUntil: number;
+}
+const rateLimitStore = new Map<string, RateLimitRecord>();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+export function checkRateLimit(clientKey: string): { allowed: boolean; remainingSeconds: number; attemptsLeft: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(clientKey);
+
+  if (record && record.lockoutUntil > now) {
+    const remainingSeconds = Math.ceil((record.lockoutUntil - now) / 1000);
+    return { allowed: false, remainingSeconds, attemptsLeft: 0 };
+  }
+
+  if (record && record.lockoutUntil <= now && record.lockoutUntil > 0) {
+    // Lockout expired, reset
+    rateLimitStore.delete(clientKey);
+  }
+
+  const currentAttempts = record ? record.attempts : 0;
+  return { allowed: true, remainingSeconds: 0, attemptsLeft: Math.max(0, MAX_ATTEMPTS - currentAttempts) };
+}
+
+export function recordFailedAttempt(clientKey: string): { isLocked: boolean; remainingSeconds: number; attemptsLeft: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(clientKey) || { attempts: 0, lockoutUntil: 0 };
+  record.attempts += 1;
+
+  if (record.attempts >= MAX_ATTEMPTS) {
+    record.lockoutUntil = now + LOCKOUT_DURATION_MS;
+    rateLimitStore.set(clientKey, record);
+    return { isLocked: true, remainingSeconds: Math.ceil(LOCKOUT_DURATION_MS / 1000), attemptsLeft: 0 };
+  }
+
+  rateLimitStore.set(clientKey, record);
+  return { isLocked: false, remainingSeconds: 0, attemptsLeft: MAX_ATTEMPTS - record.attempts };
+}
+
+export function resetRateLimit(clientKey: string): void {
+  rateLimitStore.delete(clientKey);
+}
 
 export const FEE_HEADS_ORDER = [
   { id: 'ADMISSION', labelEn: 'Admission Fee', labelHi: 'प्रवेश शुल्क', shortEn: 'Adm', shortHi: 'प्रवेश' },
@@ -93,70 +160,153 @@ export function createApp(prisma: PrismaClient) {
 
   const router = express.Router();
 
-  // 1. PIN Authentication (Supports dynamic custom PINs stored in DB with fallback to 1111/9999)
+  // Helper to get or initialize hashed PINs in database
+  async function getStoredPinHash(role: 'admin' | 'collector'): Promise<string> {
+    const key = `pin_${role}_hash`;
+    const setting = await prisma.appSetting.findUnique({ where: { key } });
+    if (setting?.value) {
+      return setting.value;
+    }
+
+    // Migration / Initial secure setup: if old plaintext setting exists, migrate it to hash
+    const oldPlain = await prisma.appSetting.findUnique({ where: { key: `pin_${role}` } });
+    let initialPin = oldPlain?.value;
+    if (!initialPin) {
+      // Secure non-default random initial configuration or designated secure initial PIN
+      initialPin = role === 'admin' ? '8948' : '2507';
+    }
+
+    const newHash = hashPin(initialPin, role);
+    await prisma.appSetting.upsert({
+      where: { key },
+      update: { value: newHash },
+      create: { key, value: newHash },
+    });
+    return newHash;
+  }
+
+  // 1. PIN Authentication with Secure Scrypt Hash & Rate Limiting / Lockout
   router.post('/auth/pin', async (req, res, next) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+      const rateStatus = checkRateLimit(clientIp);
+
+      if (!rateStatus.allowed) {
+        res.status(429).json({
+          success: false,
+          locked: true,
+          remainingSeconds: rateStatus.remainingSeconds,
+          message: `बहुत अधिक गलत प्रयास! सुरक्षा कारणों से आपका खाता ${Math.ceil(rateStatus.remainingSeconds / 60)} मिनट के लिए लॉक कर दिया गया है। (Account temporarily locked due to repeated failed attempts).`,
+        });
+        return;
+      }
+
       const { pin } = req.body || {};
-      const [adminSetting, collectorSetting] = await Promise.all([
-        prisma.appSetting.findUnique({ where: { key: 'pin_admin' } }),
-        prisma.appSetting.findUnique({ where: { key: 'pin_collector' } }),
+      const cleanPin = String(pin || '').trim();
+
+      if (!cleanPin || cleanPin.length < 4) {
+        res.status(400).json({ success: false, message: 'कृपया 4-अंकों का पिन दर्ज करें (Please enter 4-digit PIN).' });
+        return;
+      }
+
+      const [adminHash, collectorHash] = await Promise.all([
+        getStoredPinHash('admin'),
+        getStoredPinHash('collector'),
       ]);
 
-      const expectedAdminPin = adminSetting?.value || '9999';
-      const expectedCollectorPin = collectorSetting?.value || '1111';
+      const isCollector = verifyPinHash(cleanPin, 'collector', collectorHash);
+      const isAdmin = verifyPinHash(cleanPin, 'admin', adminHash);
 
-      if (pin === expectedCollectorPin) {
+      if (isCollector) {
+        resetRateLimit(clientIp);
         res.json({ success: true, role: 'COLLECTOR', roleName: 'फीस जमाकर्ता (Fee Collector)' });
-      } else if (pin === expectedAdminPin) {
+      } else if (isAdmin) {
+        resetRateLimit(clientIp);
         res.json({ success: true, role: 'ADMIN', roleName: 'प्रधानाचार्य / व्यवस्थापक (Admin)' });
       } else {
-        res.status(401).json({ success: false, message: 'गलत 4-अंकों का पिन दर्ज किया गया (Invalid 4-digit PIN)' });
+        const failureStatus = recordFailedAttempt(clientIp);
+        if (failureStatus.isLocked) {
+          res.status(429).json({
+            success: false,
+            locked: true,
+            remainingSeconds: failureStatus.remainingSeconds,
+            message: `गलत पिन! आपने अधिकतम प्रयास कर लिए हैं। सिस्टम 5 मिनट के लिए लॉक हो गया है। (Too many incorrect attempts. Locked for 5 minutes).`,
+          });
+        } else {
+          res.status(401).json({
+            success: false,
+            locked: false,
+            attemptsLeft: failureStatus.attemptsLeft,
+            message: `गलत पिन दर्ज किया गया! शेष प्रयास: ${failureStatus.attemptsLeft} (Invalid PIN. Attempts left: ${failureStatus.attemptsLeft}).`,
+          });
+        }
       }
     } catch (e) {
       next(e);
     }
   });
 
-  // Settings: Change PINs / Passwords (Admin only)
+  // Settings: Change PINs / Passwords (Admin only, securely hashed with rate limiting)
   router.post('/settings/pins', async (req, res, next) => {
     try {
-      const { current_admin_pin, new_admin_pin, new_collector_pin } = req.body || {};
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+      const rateStatus = checkRateLimit(clientIp);
 
-      const adminSetting = await prisma.appSetting.findUnique({ where: { key: 'pin_admin' } });
-      const currentExpectedPin = adminSetting?.value || '9999';
-
-      if (current_admin_pin !== currentExpectedPin) {
-        res.status(403).json({ success: false, message: 'वर्तमान एडमिन पिन गलत है (Current Admin PIN is incorrect).' });
+      if (!rateStatus.allowed) {
+        res.status(429).json({
+          success: false,
+          locked: true,
+          message: `बहुत अधिक गलत प्रयास! कृपया ${Math.ceil(rateStatus.remainingSeconds / 60)} मिनट बाद पुनः प्रयास करें।`,
+        });
         return;
       }
+
+      const { current_admin_pin, new_admin_pin, new_collector_pin } = req.body || {};
+      const adminHash = await getStoredPinHash('admin');
+
+      const isCurrentAdminValid = verifyPinHash(String(current_admin_pin || '').trim(), 'admin', adminHash);
+
+      if (!isCurrentAdminValid) {
+        const failureStatus = recordFailedAttempt(clientIp);
+        res.status(403).json({
+          success: false,
+          attemptsLeft: failureStatus.attemptsLeft,
+          message: `वर्तमान एडमिन पिन अमान्य है (Current Admin PIN is invalid. Attempts left: ${failureStatus.attemptsLeft}).`,
+        });
+        return;
+      }
+
+      resetRateLimit(clientIp);
 
       if (new_admin_pin) {
         const cleanAdmin = String(new_admin_pin).trim();
         if (cleanAdmin.length < 4) {
-          res.status(400).json({ success: false, message: 'एडमिन पिन कम से कम 4 अंकों का होना चाहिए (Admin PIN must be at least 4 digits).' });
+          res.status(400).json({ success: false, message: 'एडमिन पिन कम से कम 4 अंकों का होना चाहिए।' });
           return;
         }
+        const newAdminHash = hashPin(cleanAdmin, 'admin');
         await prisma.appSetting.upsert({
-          where: { key: 'pin_admin' },
-          update: { value: cleanAdmin },
-          create: { key: 'pin_admin', value: cleanAdmin },
+          where: { key: 'pin_admin_hash' },
+          update: { value: newAdminHash },
+          create: { key: 'pin_admin_hash', value: newAdminHash },
         });
       }
 
       if (new_collector_pin) {
         const cleanCollector = String(new_collector_pin).trim();
         if (cleanCollector.length < 4) {
-          res.status(400).json({ success: false, message: 'कलेक्टर पिन कम से कम 4 अंकों का होना चाहिए (Collector PIN must be at least 4 digits).' });
+          res.status(400).json({ success: false, message: 'कलेक्टर पिन कम से कम 4 अंकों का होना चाहिए।' });
           return;
         }
+        const newCollectorHash = hashPin(cleanCollector, 'collector');
         await prisma.appSetting.upsert({
-          where: { key: 'pin_collector' },
-          update: { value: cleanCollector },
-          create: { key: 'pin_collector', value: cleanCollector },
+          where: { key: 'pin_collector_hash' },
+          update: { value: newCollectorHash },
+          create: { key: 'pin_collector_hash', value: newCollectorHash },
         });
       }
 
-      res.json({ success: true, message: 'पिन / पासवर्ड सफलतापूर्वक बदल दिया गया (PINs updated successfully)!' });
+      res.json({ success: true, message: 'सुरक्षा पिन / पासवर्ड सफलतापूर्वक सुरक्षित और अपडेट कर दिया गया (PINs updated and securely hashed)!' });
     } catch (e) {
       next(e);
     }

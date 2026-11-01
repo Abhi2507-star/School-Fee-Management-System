@@ -208,12 +208,12 @@ export const DICTIONARY = {
     hi: '4-अंकों का सुरक्षा पिन दर्ज करें',
   },
   pinCollectorDesc: {
-    en: 'Fee submission & student lookup (PIN: 1111)',
-    hi: 'फीस जमा और रजिस्टर देखने हेतु (पिन: 1111)',
+    en: 'Fee submission & student lookup',
+    hi: 'फीस जमा और रजिस्टर देखने हेतु',
   },
   pinAdminDesc: {
-    en: 'Full school administration & management (PIN: 9999)',
-    hi: 'विद्यालय प्रबंधन एवं सेटिंग्स हेतु (पिन: 9999)',
+    en: 'Full school administration & management',
+    hi: 'विद्यालय प्रबंधन एवं सेटिंग्स हेतु',
   },
 };
 
