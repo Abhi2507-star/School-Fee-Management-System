@@ -822,47 +822,63 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
             </tr>
           </thead>
           <tbody>
-            {students.map((s) => (
-              <tr key={s.id} className="border-b hover:bg-slate-50">
-                <td className="p-2.5 font-mono font-bold text-blue-900">{s.admissionNumber}</td>
-                <td className="p-2.5 font-semibold">{s.fullName}</td>
-                <td className="p-2.5">
-                  {s.guardianName} ({s.primaryContactNumber})
-                </td>
-                <td className="p-2.5">
-                  {s.currentEnrollment
-                    ? `${s.currentEnrollment.className}-${s.currentEnrollment.sectionName}`
-                    : lang === 'hi'
-                    ? 'नामांकित नहीं'
-                    : 'Unenrolled'}
-                </td>
-                <td className="p-2.5 font-mono">
-                  {s.currentEnrollment?.academicYearCode || '—'}
-                </td>
-                <td className="p-2.5 text-right font-mono tabular-nums">₹{s.ledgerSummary.totalNetPayable}</td>
-                <td className="p-2.5 text-right font-mono tabular-nums text-emerald-700">
-                  ₹{s.ledgerSummary.totalClearedPaid}
-                </td>
-                <td className="p-2.5 text-right font-mono tabular-nums font-bold text-orange-600">
-                  ₹{s.ledgerSummary.totalOutstanding}
-                </td>
-                <td className="p-2.5 text-right space-x-2 whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStudentId(s.id)}
-                    className="text-blue-900 font-bold underline"
-                  >
-                    {lang === 'hi' ? 'लेजर देखें' : 'Inspect Ledger'}
-                  </button>
-                  <Link
-                    to={`/collect?studentId=${encodeURIComponent(s.id)}`}
-                    className="text-orange-600 font-bold underline"
-                  >
-                    {lang === 'hi' ? 'फीस जमा करें' : 'Collect Fee'}
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {students.map((s) => {
+              const isSelected = selectedStudentId === s.id;
+              return (
+                <tr
+                  key={s.id}
+                  onClick={() => setSelectedStudentId(s.id)}
+                  className={`border-b cursor-pointer transition-colors ${
+                    isSelected ? 'bg-blue-50/80 font-medium' : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <td className="p-2.5 font-mono font-bold text-blue-900">{s.admissionNumber}</td>
+                  <td className="p-2.5 font-semibold">{s.fullName}</td>
+                  <td className="p-2.5">
+                    {s.guardianName} ({s.primaryContactNumber})
+                  </td>
+                  <td className="p-2.5">
+                    {s.currentEnrollment
+                      ? `${s.currentEnrollment.className}-${s.currentEnrollment.sectionName}`
+                      : lang === 'hi'
+                      ? 'नामांकित नहीं'
+                      : 'Unenrolled'}
+                  </td>
+                  <td className="p-2.5 font-mono">
+                    {s.currentEnrollment?.academicYearCode || '—'}
+                  </td>
+                  <td className="p-2.5 text-right font-mono tabular-nums">₹{s.ledgerSummary.totalNetPayable}</td>
+                  <td className="p-2.5 text-right font-mono tabular-nums text-emerald-700">
+                    ₹{s.ledgerSummary.totalClearedPaid}
+                  </td>
+                  <td className="p-2.5 text-right font-mono tabular-nums font-bold text-orange-600">
+                    ₹{s.ledgerSummary.totalOutstanding}
+                  </td>
+                  <td className="p-2.5 text-right whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedStudentId(s.id);
+                      }}
+                      className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
+                        isSelected
+                          ? 'bg-blue-900 text-white shadow-sm'
+                          : 'border border-blue-900 text-blue-900 hover:bg-blue-50'
+                      }`}
+                    >
+                      {isSelected
+                        ? lang === 'hi'
+                          ? 'चयनित ✓'
+                          : 'Selected ✓'
+                        : lang === 'hi'
+                        ? '2. विद्यार्थी चुनें'
+                        : '2. Select Student'}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             {students.length === 0 && (
               <tr>
                 <td colSpan={9} className="p-6 text-center text-slate-500">

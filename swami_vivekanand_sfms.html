@@ -2474,8 +2474,9 @@
               <td class="py-2.5 px-3 text-center whitespace-nowrap"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">${s.status}</span></td>
               <td class="py-2.5 px-3 text-right space-x-2 whitespace-nowrap">
                 ${state.currentRole === 'ADMINISTRATOR' ? `<button type="button" data-edit-student="${s.id}" class="text-slate-700 font-bold underline">Edit</button>` : ''}
-                <button type="button" data-select-student="${s.id}" class="text-blue-900 font-bold underline">View Ledger</button>
-                <button type="button" data-pos-student="${s.id}" class="text-orange-600 font-bold underline">फीस जमा करें</button>
+                <button type="button" data-select-student="${s.id}" class="px-2.5 py-1 rounded text-xs font-bold ${state.selectedStudentId === s.id ? 'bg-blue-900 text-white shadow-sm' : 'border border-blue-900 text-blue-900 hover:bg-blue-50'}">
+                  ${state.selectedStudentId === s.id ? 'Selected ✓' : '2. Select Student'}
+                </button>
               </td>
             </tr>`;
           })
