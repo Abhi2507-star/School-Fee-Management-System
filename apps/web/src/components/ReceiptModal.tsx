@@ -74,6 +74,13 @@ ${itemsSummary}
           <div className="border-2 border-emerald-800 p-5 rounded-xl bg-gradient-to-b from-emerald-50/20 to-white">
             {/* School Branding */}
             <div className="text-center border-b-2 border-emerald-700 pb-3 mb-4">
+              <div className="flex items-center justify-center mb-2">
+                <img
+                  src="/logo.png"
+                  alt="SVSS Logo"
+                  className="w-16 h-16 rounded-full object-contain bg-white p-0.5 shadow-sm border border-emerald-800/30"
+                />
+              </div>
               <h2 className="text-lg font-black text-emerald-900 tracking-tight">
                 स्वामी विवेकानन्द शिक्षण संस्थान
               </h2>

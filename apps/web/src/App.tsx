@@ -156,9 +156,11 @@ function MainApp() {
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
           {/* School Name & Subtitle */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center font-black shadow-md shrink-0">
-              <School size={22} />
-            </div>
+            <img
+              src="/logo.png"
+              alt="SVSS Logo"
+              className="w-11 h-11 rounded-full object-contain bg-white p-0.5 shadow-md shrink-0 border border-amber-500/30"
+            />
             <div>
               <h1 className="font-black text-sm md:text-base tracking-tight leading-none text-white">
                 {t('schoolName')}

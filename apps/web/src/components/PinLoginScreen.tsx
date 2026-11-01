@@ -77,10 +77,12 @@ export const PinLoginScreen: React.FC<PinLoginScreenProps> = ({ onLoginSuccess }
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-orange-50/40 to-blue-50/50 flex flex-col justify-between p-4">
       {/* Top Bar with Language Toggle */}
       <header className="max-w-4xl w-full mx-auto flex items-center justify-between py-2">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center font-black shadow-md">
-            <School size={22} />
-          </div>
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="SVSS Logo"
+            className="w-12 h-12 rounded-full object-contain bg-white p-0.5 shadow-md border border-amber-500/30"
+          />
           <div>
             <h1 className="font-black text-slate-900 text-sm md:text-base leading-tight">
               {t('schoolName')}
