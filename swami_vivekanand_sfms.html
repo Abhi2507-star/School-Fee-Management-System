@@ -184,11 +184,11 @@
         <button type="button" data-nav="collect" class="nav-btn flex items-center gap-2.5 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap text-blue-100 hover:bg-blue-800">
           <span data-i18n="navFeeCollection">2. फीस जमा करें</span>
         </button>
-        <button type="button" data-nav="receipts" class="nav-btn flex items-center gap-2.5 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap text-blue-100 hover:bg-blue-800">
-          <span data-i18n="navReprintReceipt">3. रसीद दोबारा निकालें</span>
+        <button type="button" data-nav="receipts" class="nav-btn hidden items-center gap-2.5 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap text-blue-100 hover:bg-blue-800">
+          <span data-i18n="navReprintReceipt">रसीद दोबारा निकालें</span>
         </button>
         <button type="button" data-nav="reports" class="nav-btn flex items-center gap-2.5 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap text-blue-100 hover:bg-blue-800">
-          <span data-i18n="navReports">4. रिपोर्ट देखें</span>
+          <span data-i18n="navReports">3. रिपोर्ट देखें</span>
         </button>
       </nav>
 
@@ -323,6 +323,7 @@
           <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded border border-slate-200 shadow-sm">
             <div>
               <h2 id="posSessionHeading" class="text-lg font-extrabold text-slate-900">फीस जमा करें (सत्र 2026-27)</h2>
+              <div class="text-[11px] font-semibold text-slate-500 mt-0.5">Workflow: Find Student → Select Student → Collect Fee → Review Fees → Payment → Receipt</div>
             </div>
             <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs max-w-full">
               <span id="posStagePill1" class="px-2 py-0.5 rounded font-bold svss-saffron text-white whitespace-nowrap">1. विद्यार्थी खोजें</span>
@@ -342,7 +343,7 @@
             <div class="lg:col-span-8 space-y-4 min-w-0">
 
               <!-- Section 1: Student Search -->
-              <div class="bg-white rounded border border-slate-200 shadow-sm overflow-visible">
+              <div id="posSearchSectionCard" class="bg-white rounded border border-slate-200 shadow-sm overflow-visible">
                 <div class="bg-slate-50 rounded-t px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
                   <h3 class="text-xs font-extrabold uppercase tracking-wide text-blue-900">
                     Student Search
@@ -624,6 +625,26 @@
 
         <!-- VIEW 3: STUDENTS & 9-TAB PROFILE (WITH 8-FIELD REGISTRATION FORM & CONFIGURABLE ACADEMIC SESSIONS) -->
         <section id="view-students" class="hidden space-y-5">
+          <!-- Standard 6-Step Fee Collection Workflow Indicator -->
+          <div class="bg-blue-50/70 border border-blue-200 rounded p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span class="font-extrabold text-blue-900 flex items-center gap-1.5">
+              <span>Standard Workflow:</span>
+            </span>
+            <div class="flex flex-wrap items-center gap-1.5 font-bold text-[11px]">
+              <span class="px-2 py-0.5 rounded bg-blue-900 text-white">1. Find Student</span>
+              <span class="text-blue-400">→</span>
+              <span class="px-2 py-0.5 rounded bg-blue-900 text-white">2. Select Student</span>
+              <span class="text-blue-400">→</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-700 text-white">3. Collect Fee</span>
+              <span class="text-blue-400">→</span>
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700">4. Review Fees</span>
+              <span class="text-blue-400">→</span>
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700">5. Payment</span>
+              <span class="text-blue-400">→</span>
+              <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700">6. Receipt</span>
+            </div>
+          </div>
+
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 id="studentsSessionHeading" class="text-lg font-extrabold text-slate-900">Student Directory &amp; 9-Tab Ledger Profile (Session 2026-27)</h2>
@@ -816,7 +837,10 @@
                 <span class="text-xs font-bold uppercase text-slate-500">Selected Student 9-Tab Profile:</span>
                 <span id="profileHeaderTitle" class="ml-2 text-sm font-extrabold text-blue-900"></span>
               </div>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="collectFeeFromProfileBtn" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm flex items-center gap-1.5">
+                  3. Collect Fee (फीस जमा करें) →
+                </button>
                 <button id="editSelectedStudentBtn" type="button" class="border border-blue-900 text-blue-900 hover:bg-blue-50 px-3 py-1 rounded text-xs font-semibold">
                   Edit Student Profile
                 </button>
@@ -2215,6 +2239,15 @@
     function renderPosCollection() {
       populateClassAndSectionDropdowns();
 
+      const searchCard = document.getElementById('posSearchSectionCard');
+      if (searchCard) {
+        if (state.posSelectedStudentId) {
+          searchCard.classList.add('hidden');
+        } else {
+          searchCard.classList.remove('hidden');
+        }
+      }
+
       const resultsContainer = document.getElementById('posSearchResultsContainer');
       const resultsTbody = document.getElementById('posSearchResultsTbody');
       const emptyBox = document.getElementById('posSearchEmptyBox');
@@ -2511,8 +2544,8 @@
         const stPays = state.payments.filter((p) => p.studentId === st.id);
         box.innerHTML = stPays.length
           ? `<div class="overflow-x-auto"><table class="w-full text-xs border-collapse">
-              <thead><tr class="bg-slate-100 border-b"><th class="p-2 text-left">Payment ID</th><th class="p-2 text-left">Receipt No</th><th class="p-2 text-left">Date &amp; Time</th><th class="p-2 text-left">Method &amp; Ref</th><th class="p-2 text-left">Collected By</th><th class="p-2 text-right">Received</th><th class="p-2 text-center">Status</th></tr></thead>
-              <tbody>${stPays.map((p) => `<tr class="border-b"><td class="p-2 font-mono">${p.id}</td><td class="p-2 font-mono font-bold text-blue-900">${p.receiptNumber}</td><td class="p-2 whitespace-nowrap">${p.paidAt}</td><td class="p-2">${p.method} (${p.reference})</td><td class="p-2">${p.cashier}</td><td class="p-2 text-right font-mono tabular-nums font-bold">${formatINR(p.amountReceived)}</td><td class="p-2 text-center font-bold">${p.status}</td></tr>`).join('')}</tbody>
+              <thead><tr class="bg-slate-100 border-b"><th class="p-2 text-left">Payment ID</th><th class="p-2 text-left">Receipt No</th><th class="p-2 text-left">Date &amp; Time</th><th class="p-2 text-left">Method &amp; Ref</th><th class="p-2 text-left">Collected By</th><th class="p-2 text-right">Received</th><th class="p-2 text-center">Status</th><th class="p-2 text-right whitespace-nowrap">Receipt Actions</th></tr></thead>
+              <tbody>${stPays.map((p) => `<tr class="border-b hover:bg-slate-50"><td class="p-2 font-mono">${p.id}</td><td class="p-2 font-mono font-bold text-blue-900">${p.receiptNumber}</td><td class="p-2 whitespace-nowrap">${p.paidAt}</td><td class="p-2">${p.method} (${p.reference})</td><td class="p-2">${p.cashier}</td><td class="p-2 text-right font-mono tabular-nums font-bold">${formatINR(p.amountReceived)}</td><td class="p-2 text-center font-bold">${p.status}</td><td class="p-2 text-right whitespace-nowrap"><button type="button" data-open-receipt="${p.id}" class="text-blue-900 font-bold underline hover:text-blue-700">Print A4 / Thermal</button></td></tr>`).join('')}</tbody>
             </table></div>`
           : `<div class="text-slate-400">No payments recorded for this student yet.</div>`;
       } else if (tab === 'receipts') {
@@ -3591,6 +3624,32 @@
       document.getElementById('posClearSelectedStudentBtn').addEventListener('click', () => {
         clearStalePosStudentSelection();
         renderPosCollection();
+      });
+
+      document.getElementById('collectFeeFromProfileBtn')?.addEventListener('click', () => {
+        if (!state.selectedStudentId) {
+          showToast('Please select a student first.', true);
+          return;
+        }
+        const stId = state.selectedStudentId;
+        const stObj = state.students.find((s) => s.id === stId);
+        state.posSearchCriteria = {
+          studentName: stObj ? stObj.admissionNumber : '',
+          fatherName: '',
+          className: '',
+          section: '',
+        };
+        const nameInput = document.getElementById('posSearchStudentName');
+        const fatherInput = document.getElementById('posSearchFatherName');
+        if (nameInput) nameInput.value = stObj ? stObj.admissionNumber : '';
+        if (fatherInput) fatherInput.value = '';
+        state.posHasSearched = true;
+        state.posSearchResults = [stId];
+        state.posSelectedStudentId = stId;
+        state.posAttemptKey = generateAttemptKey(stId);
+        state.posCommittedPaymentId = null;
+        state.posHasPrintedReceipt = false;
+        document.querySelector('[data-nav="collect"]').click();
       });
 
       // POS Controls

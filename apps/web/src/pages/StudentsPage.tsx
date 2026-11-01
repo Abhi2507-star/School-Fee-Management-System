@@ -774,6 +774,38 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
         </div>
       </form>
 
+      {/* Streamlined 6-Step Student-to-Payment Workflow Breadcrumb */}
+      <div className="bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2">
+        <div className="font-bold text-slate-700">
+          {lang === 'hi' ? 'कार्यप्रवाह (Workflow):' : 'Workflow:'}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 font-semibold text-[11px]">
+          <span className={`px-2 py-0.5 rounded font-bold ${!selectedStudentId ? 'bg-orange-600 text-white' : 'bg-emerald-100 text-emerald-900'}`}>
+            1. {lang === 'hi' ? 'विद्यार्थी खोजें' : 'Find Student'}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className={`px-2 py-0.5 rounded font-bold ${selectedStudentId ? 'bg-orange-600 text-white' : 'text-slate-400'}`}>
+            2. {lang === 'hi' ? 'विद्यार्थी चुनें' : 'Select Student'}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className="px-2 py-0.5 rounded text-slate-400 font-bold">
+            3. {lang === 'hi' ? 'फीस जमा करें' : 'Collect Fee'}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className="px-2 py-0.5 rounded text-slate-400 font-bold">
+            4. {lang === 'hi' ? 'फीस देखें' : 'Review Fees'}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className="px-2 py-0.5 rounded text-slate-400 font-bold">
+            5. {lang === 'hi' ? 'भुगतान' : 'Payment'}
+          </span>
+          <span className="text-slate-400">→</span>
+          <span className="px-2 py-0.5 rounded text-slate-400 font-bold">
+            6. {lang === 'hi' ? 'रसीद' : 'Receipt'}
+          </span>
+        </div>
+      </div>
+
       <div className="bg-white rounded border border-slate-200 overflow-x-auto">
         <table className="w-full text-xs border-collapse">
           <thead>
@@ -847,11 +879,23 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
       {/* 7-Tab Student Profile Inspector */}
       {profile && (
         <div className="bg-white rounded border-2 border-slate-300 overflow-hidden">
-          <div className="bg-slate-100 px-4 py-3 border-b flex justify-between items-center">
-            <span className="text-sm font-extrabold text-blue-900">
-              {profile.overview.fullName} ({profile.overview.admissionNumber}) — {lang === 'hi' ? 'बकाया शुल्क:' : 'Outstanding:'} ₹
-              {profile.ledger.totalOutstandingBalance}
-            </span>
+          <div className="bg-slate-100 px-4 py-3 border-b flex flex-wrap justify-between items-center gap-3">
+            <div>
+              <span className="text-sm font-extrabold text-blue-900">
+                {profile.overview.fullName} ({profile.overview.admissionNumber})
+              </span>
+              <span className="text-xs text-slate-600 ml-2">
+                — {lang === 'hi' ? 'बकाया शुल्क:' : 'Outstanding:'}{' '}
+                <strong className="font-mono text-orange-600 font-bold">₹{profile.ledger.totalOutstandingBalance}</strong>
+              </span>
+            </div>
+            <Link
+              to={`/collect?studentId=${encodeURIComponent(profile.overview.id || selectedStudentId!)}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs font-extrabold shadow-sm transition-colors"
+            >
+              <span>💳</span>
+              <span>{lang === 'hi' ? '3. फीस जमा करें (Collect Fee) →' : '3. Collect Fee →'}</span>
+            </Link>
           </div>
           <div className="flex flex-wrap border-b bg-slate-50 px-2 pt-1 text-xs">
             {[
@@ -920,17 +964,85 @@ export function StudentsPage({ selectedAcademicYearId: propYearId, userRoles: pr
               </div>
             )}
             {activeTab === 'payments' && (
-              <div className="space-y-1.5">
-                {profile.payments.map((p: any) => (
-                  <div key={p.id} className="p-2 border rounded flex justify-between">
-                    <span className="font-mono font-bold text-blue-900">
-                      {p.receiptNumber} ({p.paymentMethod})
-                    </span>
-                    <span className="font-mono font-bold">
-                      ₹{p.amountReceived} — {p.status}
-                    </span>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+                  <span className="font-bold text-slate-800">
+                    {lang === 'hi' ? 'भुगतान एवं रसीद इतिहास (Payment & Receipt History)' : 'Payment & Receipt History'}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {lang === 'hi' ? 'प्रत्येक भुगतान की रसीद यहाँ से सीधे देखी और पुनः प्रिंट की जा सकती है।' : 'View and reprint official receipts for any past payment directly.'}
+                  </span>
+                </div>
+                {profile.payments && profile.payments.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
+                          <th className="py-2 px-3 text-left">{lang === 'hi' ? 'रसीद संख्या' : 'Receipt No'}</th>
+                          <th className="py-2 px-3 text-left">{lang === 'hi' ? 'भुगतान तिथि' : 'Payment Date'}</th>
+                          <th className="py-2 px-3 text-left">{lang === 'hi' ? 'भुगतान विधि' : 'Method & Ref'}</th>
+                          <th className="py-2 px-3 text-right">{lang === 'hi' ? 'जमा राशि' : 'Amount Received'}</th>
+                          <th className="py-2 px-3 text-center">{lang === 'hi' ? 'स्थिति' : 'Status'}</th>
+                          <th className="py-2 px-3 text-right">{lang === 'hi' ? 'रसीद प्रिंट / देखें' : 'Receipt Actions'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {profile.payments.map((p: any) => {
+                          const rNo = p.receipt?.receiptNumber || p.receiptNumber || '—';
+                          const paidDate = p.paidAt
+                            ? new Date(p.paidAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                            : '—';
+                          return (
+                            <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50">
+                              <td className="py-2 px-3 font-mono font-bold text-blue-900">{rNo}</td>
+                              <td className="py-2 px-3 text-slate-600">{paidDate}</td>
+                              <td className="py-2 px-3">
+                                <span className="font-semibold">{p.paymentMethod}</span>
+                                {p.transactionReference && (
+                                  <span className="text-[11px] text-slate-500 ml-1 font-mono">({p.transactionReference})</span>
+                                )}
+                              </td>
+                              <td className="py-2 px-3 text-right font-mono font-bold text-emerald-700">
+                                ₹{p.amountReceived}
+                              </td>
+                              <td className="py-2 px-3 text-center">
+                                <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                                  {p.status}
+                                </span>
+                              </td>
+                              <td className="py-2 px-3 text-right space-x-1.5 whitespace-nowrap">
+                                <a
+                                  href={`/api/v1/payments/${p.id}/receipt?format=HTML&reprint=true&layout=A4`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-block px-2.5 py-1 bg-blue-900 hover:bg-blue-800 text-white rounded font-bold text-[11px] transition-colors"
+                                  title={lang === 'hi' ? 'A4 रसीद प्रिंट करें' : 'Print A4 Receipt'}
+                                >
+                                  {lang === 'hi' ? 'A4 रसीद' : 'A4 Receipt'}
+                                </a>
+                                <a
+                                  href={`/api/v1/payments/${p.id}/receipt?format=HTML&reprint=true&layout=THERMAL`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-block px-2.5 py-1 border border-blue-900 text-blue-900 hover:bg-blue-50 rounded font-bold text-[11px] transition-colors"
+                                  title={lang === 'hi' ? 'थर्मल (80mm) रसीद प्रिंट करें' : 'Print 80mm Thermal Receipt'}
+                                >
+                                  {lang === 'hi' ? 'थर्मल (80mm)' : 'Thermal (80mm)'}
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
+                ) : (
+                  <div className="p-4 text-center text-slate-500 bg-slate-50 rounded border border-dashed">
+                    {lang === 'hi'
+                      ? 'इस विद्यार्थी के लिए अभी तक कोई भुगतान या रसीद रिकॉर्ड नहीं है।'
+                      : 'No payments or receipts recorded for this student yet.'}
+                  </div>
+                )}
               </div>
             )}
             {activeTab === 'concessions' && (

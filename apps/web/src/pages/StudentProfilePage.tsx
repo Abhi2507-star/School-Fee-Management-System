@@ -12,7 +12,7 @@
  * 9. Audit History (Authorized Staff)
  */
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout } from '../layouts/AdminLayout';
 import { apiRequest } from '../services/api';
@@ -141,15 +141,23 @@ export const StudentProfilePage: React.FC = () => {
       title={`${student.fullName} (${student.admissionNumber})`}
       breadcrumbs={['Students', student.admissionNumber]}
       actions={
-        hasPermission('STUDENT_WRITE') ? (
-          <button
-            type="button"
-            onClick={openEditForm}
-            className="bg-svss-navy hover:bg-blue-900 text-white px-3 py-1.5 rounded text-xs font-semibold"
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/collect?studentId=${encodeURIComponent(id || '')}`}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded text-xs font-bold shadow-sm"
           >
-            Edit Student Profile
-          </button>
-        ) : undefined
+            Collect Fee →
+          </Link>
+          {hasPermission('STUDENT_WRITE') && (
+            <button
+              type="button"
+              onClick={openEditForm}
+              className="bg-svss-navy hover:bg-blue-900 text-white px-3 py-1.5 rounded text-xs font-semibold"
+            >
+              Edit Student Profile
+            </button>
+          )}
+        </div>
       }
     >
       <div className="space-y-4">
@@ -482,6 +490,7 @@ export const StudentProfilePage: React.FC = () => {
                       <th className="p-2 text-right">Received</th>
                       <th className="p-2 text-center">Status</th>
                       <th className="p-2 text-left">Collected By</th>
+                      <th className="p-2 text-right">Receipt Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -503,6 +512,24 @@ export const StudentProfilePage: React.FC = () => {
                         <td className="p-2 text-right font-bold">{formatRupees(p.amountReceived)}</td>
                         <td className="p-2 text-center font-semibold">{p.status}</td>
                         <td className="p-2">{p.collectedBy?.fullName || '—'}</td>
+                        <td className="p-2 text-right whitespace-nowrap space-x-1.5">
+                          <a
+                            href={`/api/v1/payments/${p.id}/receipt?format=HTML&reprint=true&layout=A4`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-block px-2 py-0.5 bg-blue-900 hover:bg-blue-800 text-white rounded font-bold text-[11px]"
+                          >
+                            A4 Receipt
+                          </a>
+                          <a
+                            href={`/api/v1/payments/${p.id}/receipt?format=HTML&reprint=true&layout=THERMAL`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-block px-2 py-0.5 border border-blue-900 text-blue-900 hover:bg-blue-50 rounded font-bold text-[11px]"
+                          >
+                            Thermal (80mm)
+                          </a>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

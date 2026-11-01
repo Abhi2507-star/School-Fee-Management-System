@@ -105,7 +105,6 @@ export const AdminLayout: React.FC<{
     { path: '/', label: t('dashboard'), icon: LayoutDashboard },
     { path: '/students', label: t('findStudent'), icon: Users },
     { path: '/collect', label: t('feeCollection'), icon: IndianRupee },
-    { path: '/receipts', label: t('reprintReceipt'), icon: Receipt },
     { path: '/reports', label: t('reports'), icon: FileSpreadsheet },
   ];
 

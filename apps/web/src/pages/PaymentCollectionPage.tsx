@@ -406,54 +406,122 @@ export const PaymentCollectionPage: React.FC = () => {
   const studentClassLabel = activeEnr?.schoolClass?.name || selectedStudent?.student?.className || 'N/A';
   const studentSectionLabel = activeEnr?.section?.name || selectedStudent?.student?.section || 'N/A';
 
+  const simplifiedStages = [
+    { stage: 1, labelEn: 'Find Student', labelHi: 'विद्यार्थी खोजें' },
+    { stage: 2, labelEn: 'Select Student', labelHi: 'विद्यार्थी चुनें' },
+    { stage: 3, labelEn: 'Collect Fee', labelHi: 'फीस जमा करें' },
+    { stage: 4, labelEn: 'Review Fees', labelHi: 'फीस देखें' },
+    { stage: 5, labelEn: 'Payment', labelHi: 'भुगतान' },
+    { stage: 6, labelEn: 'Receipt', labelHi: 'रसीद' },
+  ];
+
+  const activeStageNumber = committedReceipt
+    ? 6
+    : selectedStudent
+    ? toPaiseInt(amountReceived || '0') > 0
+      ? 5
+      : 4
+    : 1;
+
   return (
     <AdminLayout
       title={t('feeCollection')}
       breadcrumbs={[t('feeCollection')]}
       actions={
         <div className="flex flex-wrap items-center gap-1.5 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-xs">
-          {fourStageProgress.stages.map((st, idx) => (
-            <React.Fragment key={st.stageNumber}>
-              <span
-                className={`px-2 py-0.5 rounded font-bold whitespace-nowrap ${
-                  st.status === 'CURRENT'
-                    ? 'bg-svss-saffron text-white'
-                    : st.status === 'COMPLETED'
-                    ? 'bg-emerald-100 text-emerald-900'
-                    : 'text-slate-500'
-                }`}
-              >
-                {st.stageNumber}. {lang === 'hi' ? st.labelHi : st.labelEn}
-              </span>
-              {idx < 3 && <span className="text-slate-400 font-bold">→</span>}
-            </React.Fragment>
-          ))}
+          {simplifiedStages.map((st, idx) => {
+            const isCompleted = activeStageNumber > st.stage;
+            const isCurrent = activeStageNumber === st.stage;
+            return (
+              <React.Fragment key={st.stage}>
+                <span
+                  className={`px-2 py-0.5 rounded font-bold whitespace-nowrap ${
+                    isCurrent
+                      ? 'bg-svss-saffron text-white'
+                      : isCompleted
+                      ? 'bg-emerald-100 text-emerald-900'
+                      : 'text-slate-400'
+                  }`}
+                >
+                  {st.stage}. {lang === 'hi' ? st.labelHi : st.labelEn}
+                </span>
+                {idx < simplifiedStages.length - 1 && <span className="text-slate-300 font-bold">→</span>}
+              </React.Fragment>
+            );
+          })}
         </div>
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         <div className="lg:col-span-8 space-y-4 min-w-0">
-          {/* STAGE 1: विद्यार्थी खोजें (Find Student) */}
-          <StructuredStudentSearch
-            mode="pos"
-            criteria={criteria}
-            onCriteriaChange={handleCriteriaChange}
-            onSearchSubmit={handleSearch}
-            onReset={handleResetSearch}
-            classes={classes}
-            isSearching={isSearching}
-            hasSearched={hasSearched}
-            searchError={searchError}
-            results={searchResults}
-            selectedStudentId={selectedStudent?.student?.id || null}
-            onSelectStudent={handleSelectAndVerifyStudent}
-            isLoadingStudent={isLoadingStudent}
-            suggestionsPool={suggestionsPool}
-            onAutoFillSelect={(st, filled) => {
-              setCriteria(filled);
-              handleSelectAndVerifyStudent(st);
-            }}
-          />
+          {/* Workflow Stage 1-3: Skip Second Search if student is already selected */}
+          {selectedStudent ? (
+            <div className="bg-white rounded border border-emerald-300 shadow-sm overflow-hidden">
+              <div className="bg-emerald-50 px-4 py-3 border-b border-emerald-200 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    ✓
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald-800">
+                      {lang === 'hi' ? 'सत्यापित विद्यार्थी (Student Details Carried Over)' : 'Selected Student Verified'}
+                    </div>
+                    <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      {selectedStudent.student.fullName}{' '}
+                      <span className="font-mono text-xs text-svss-navy font-semibold">({selectedStudent.student.admissionNumber})</span>
+                    </div>
+                    <div className="text-xs text-slate-600 mt-0.5">
+                      <span>{t('classLabel')}: <strong>{studentClassLabel}-{studentSectionLabel}</strong></span>
+                      <span className="mx-2">·</span>
+                      <span>{t('fatherName')}: <strong>{selectedStudent.student.guardianName}</strong></span>
+                      {selectedStudent.student.primaryContactNumber && (
+                        <>
+                          <span className="mx-2">·</span>
+                          <span>📞 {selectedStudent.student.primaryContactNumber}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-[11px] text-slate-500">{t('outstandingFees')}</div>
+                    <div className="text-sm font-extrabold text-svss-saffron font-mono">
+                      {formatRupees(ledger?.totalOutstandingBalance || '0.00')}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearSelectedStudentAndAttempt}
+                    className="px-2.5 py-1.5 border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold shadow-sm transition-colors"
+                  >
+                    {lang === 'hi' ? 'दूसरा विद्यार्थी खोजें' : 'Change Student'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <StructuredStudentSearch
+              mode="pos"
+              criteria={criteria}
+              onCriteriaChange={handleCriteriaChange}
+              onSearchSubmit={handleSearch}
+              onReset={handleResetSearch}
+              classes={classes}
+              isSearching={isSearching}
+              hasSearched={hasSearched}
+              searchError={searchError}
+              results={searchResults}
+              selectedStudentId={selectedStudent?.student?.id || null}
+              onSelectStudent={handleSelectAndVerifyStudent}
+              isLoadingStudent={isLoadingStudent}
+              suggestionsPool={suggestionsPool}
+              onAutoFillSelect={(st, filled) => {
+                setCriteria(filled);
+                handleSelectAndVerifyStudent(st);
+              }}
+            />
+          )}
 
           {errorMsg && (
             <div
@@ -478,31 +546,16 @@ export const PaymentCollectionPage: React.FC = () => {
             </div>
           )}
 
-          {/* STAGE 2: फीस देखें (Compact Student & Fee Summary — Shown only after explicit selection) */}
+          {/* STAGE 4: फीस देखें (Review Fees Breakdown) */}
           {selectedStudent && ledger && (
             <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
-              <div className="bg-blue-50/80 px-4 py-3 border-b border-blue-200 flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs sm:text-sm font-bold text-slate-900">
-                  <span className="text-svss-navy font-extrabold">{selectedStudent.student.fullName}</span>
-                  {' · '}
-                  <span>{t('admissionNumber')}: <strong className="font-mono">{selectedStudent.student.admissionNumber}</strong></span>
-                  {' · '}
-                  <span>{t('classLabel')}: <strong>{studentClassLabel}-{studentSectionLabel}</strong></span>
-                  {' · '}
-                  <span>{t('fatherName')}: <strong>{selectedStudent.student.guardianName}</strong></span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs sm:text-sm font-extrabold text-svss-saffron font-mono">
-                    {t('outstandingFees')}: {formatRupees(ledger.totalOutstandingBalance)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={clearSelectedStudentAndAttempt}
-                    className="text-xs font-bold text-red-700 hover:underline"
-                  >
-                    {lang === 'hi' ? 'विद्यार्थी बदलें' : 'Change Student'}
-                  </button>
-                </div>
+              <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs font-extrabold uppercase tracking-wide text-svss-navy">
+                  4. {lang === 'hi' ? 'फीस देखें एवं समीक्षा करें' : 'Review Fees & Applicable Breakdown'}
+                </span>
+                <span className="text-xs font-bold text-svss-saffron font-mono">
+                  {t('outstandingFees')}: {formatRupees(ledger.totalOutstandingBalance)}
+                </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2 p-3 bg-slate-50 border-b border-slate-200 text-xs">
