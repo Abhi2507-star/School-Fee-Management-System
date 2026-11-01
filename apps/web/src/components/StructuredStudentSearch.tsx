@@ -136,7 +136,7 @@ export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = (
                 const val = e.target.value;
                 onCriteriaChange({ studentName: val });
                 setActiveDropdown(val.trim().length > 0 ? 'studentName' : null);
-                setHighlightIndex(0);
+                setHighlightIndex(-1);
               }}
               onKeyDown={(e) => {
                 if (activeDropdown !== 'studentName' || studentSuggestions.length === 0) return;
@@ -211,7 +211,7 @@ export const StructuredStudentSearch: React.FC<StructuredStudentSearchProps> = (
                 const val = e.target.value;
                 onCriteriaChange({ fatherName: val });
                 setActiveDropdown(val.trim().length > 0 ? 'fatherName' : null);
-                setHighlightIndex(0);
+                setHighlightIndex(-1);
               }}
               onKeyDown={(e) => {
                 if (activeDropdown !== 'fatherName' || fatherSuggestions.length === 0) return;

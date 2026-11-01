@@ -528,7 +528,30 @@ export const PaymentCollectionPage: React.FC = () => {
               suggestionsPool={suggestionsPool}
               onAutoFillSelect={(st, filled) => {
                 setCriteria(filled);
-                handleSelectAndVerifyStudent(st);
+                clearSelectedStudentAndAttempt();
+                setIsSearching(true);
+                setHasSearched(true);
+                setSearchError('');
+                const params = new URLSearchParams();
+                const kw = (filled.studentName || '').trim();
+                if (kw) {
+                  params.set('q', kw);
+                  params.set('studentName', kw);
+                }
+                if (filled.fatherName?.trim()) params.set('fatherName', filled.fatherName.trim());
+                if (filled.classValue?.trim()) params.set('classId', filled.classValue.trim());
+                if (filled.sectionValue?.trim()) params.set('sectionId', filled.sectionValue.trim());
+                apiRequest<any>(`/students?${params.toString()}`)
+                  .then((list) => {
+                    const matches = list.students || [];
+                    setSearchResults(matches.length > 0 ? matches : [st]);
+                  })
+                  .catch(() => {
+                    setSearchResults([st]);
+                  })
+                  .finally(() => {
+                    setIsSearching(false);
+                  });
               }}
             />
           )}
