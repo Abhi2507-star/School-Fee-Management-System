@@ -142,13 +142,13 @@ export const ExcelExportView: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-300 shadow-sm p-6 space-y-6 animate-fade-in">
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 space-y-4 animate-fade-in">
       <div>
-        <h3 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
-          <FileSpreadsheet size={20} className="text-emerald-700" />
+        <h3 className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+          <FileSpreadsheet size={16} className="text-emerald-700" />
           <span>{t('exportExcel')}</span>
         </h3>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <p className="text-[11px] text-slate-500 mt-0.5">
           {lang === 'hi'
             ? 'विद्यालय के रजिस्टर व सभी जमा रिपोर्ट 1-क्लिक में एक्सेल (.csv) फाइल के रूप में डाउनलोड करें।'
             : 'Download exact class register grids and payment reports in Excel (.csv) format.'}
@@ -156,30 +156,30 @@ export const ExcelExportView: React.FC = () => {
       </div>
 
       {msg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle size={16} />
+        <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs flex items-center gap-2">
+          <CheckCircle size={15} />
           <span>{msg}</span>
         </div>
       )}
 
       {/* Class Registers Download Grid */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      <div className="space-y-2">
+        <h4 className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
           {lang === 'hi' ? '1. कक्षा-वार उपस्थिति व फीस रजिस्टर डाउनलोड करें' : '1. Download Class-wise Registers'}
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
           {CLASSES_LIST.map((cls) => (
             <button
               key={cls}
               onClick={() => handleExportClassRegister(cls)}
               disabled={downloadingClass === cls}
-              className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-950 flex flex-col items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+              className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-100/70 text-emerald-950 flex flex-col items-center justify-center gap-1 transition active:scale-95 shadow-2xs"
             >
-              <FileSpreadsheet size={22} className="text-emerald-700" />
-              <span className="font-extrabold text-sm">{cls}</span>
-              <span className="text-[10px] text-emerald-700 flex items-center gap-1 font-bold">
-                <Download size={11} />
-                <span>{downloadingClass === cls ? '...' : lang === 'hi' ? 'डाउनलोड करें' : 'Download'}</span>
+              <FileSpreadsheet size={18} className="text-emerald-700" />
+              <span className="font-bold text-xs">{cls}</span>
+              <span className="text-[10px] text-emerald-700 flex items-center gap-1 font-semibold">
+                <Download size={10} />
+                <span>{downloadingClass === cls ? '...' : lang === 'hi' ? 'डाउनलोड' : 'Download'}</span>
               </span>
             </button>
           ))}
@@ -187,17 +187,17 @@ export const ExcelExportView: React.FC = () => {
       </div>
 
       {/* Collection Report Download */}
-      <div className="pt-4 border-t border-slate-200 space-y-3">
-        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      <div className="pt-3 border-t border-slate-100 space-y-2">
+        <h4 className="text-[11px] font-bold text-slate-600 uppercase tracking-wide">
           {lang === 'hi' ? '2. संपूर्ण फीस संग्रह रिपोर्ट डाउनलोड करें' : '2. Download Total Fee Collection Report'}
         </h4>
         <div>
           <button
             onClick={handleExportPaymentsReport}
             disabled={downloadingReport}
-            className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl shadow-md transition active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-xs transition active:scale-95"
           >
-            <Download size={16} />
+            <Download size={14} />
             <span>
               {downloadingReport
                 ? lang === 'hi'

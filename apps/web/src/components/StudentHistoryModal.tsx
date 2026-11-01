@@ -78,30 +78,30 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
   }, [student]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 my-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white px-6 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-xl text-amber-300">
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center font-black text-base text-amber-300">
               {student.roll_no}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-xl font-black tracking-tight">{student.student_name}</h3>
+                <h3 className="text-base font-black tracking-tight">{student.student_name}</h3>
                 <span
-                  className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
                     isActive
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
                       : 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
                   }`}
                 >
                   {isActive
-                    ? lang === 'hi' ? 'पढ़ रहा है (ACTIVE)' : 'ACTIVE'
-                    : lang === 'hi' ? 'स्कूल छोड़ दिया (LEFT / TC)' : 'LEFT / TC'}
+                    ? lang === 'hi' ? 'पढ़ रहा है' : 'ACTIVE'
+                    : lang === 'hi' ? 'स्कूल छोड़ दिया' : 'LEFT'}
                 </span>
               </div>
-              <p className="text-xs text-blue-200 mt-0.5">
+              <p className="text-[11px] text-blue-200">
                 {student.class_name} • {lang === 'hi' ? 'सत्र' : 'Session'}: {student.academic_year}
               </p>
             </div>
@@ -109,35 +109,35 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white p-1.5 hover:bg-white/10 rounded-lg transition"
+            className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto text-sm">
+        <div className="p-4 space-y-4 max-h-[78vh] overflow-y-auto text-xs">
           {/* Section 1: Student Details Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <span className="block text-[11px] font-bold text-slate-500">{t('fatherName')}</span>
-              <span className="font-bold text-slate-800 text-xs mt-0.5 block">{student.father_name}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span className="block text-[10px] font-bold text-slate-500">{t('fatherName')}</span>
+              <span className="font-bold text-slate-800 text-xs mt-0.5 block truncate">{student.father_name}</span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <span className="block text-[11px] font-bold text-slate-500">{t('village')}</span>
-              <span className="font-bold text-slate-800 text-xs mt-0.5 block">{student.village}</span>
+            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span className="block text-[10px] font-bold text-slate-500">{t('village')}</span>
+              <span className="font-bold text-slate-800 text-xs mt-0.5 block truncate">{student.village}</span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <span className="block text-[11px] font-bold text-slate-500">{t('mobile')}</span>
+            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span className="block text-[10px] font-bold text-slate-500">{t('mobile')}</span>
               <span className="font-bold font-mono text-slate-800 text-xs mt-0.5 block">
                 {student.mobile || '—'}
               </span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <span className="block text-[11px] font-bold text-slate-500">
+            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span className="block text-[10px] font-bold text-slate-500">
                 {lang === 'hi' ? 'दाखिला माह' : 'Joined Month'}
               </span>
               <span className="font-bold text-slate-800 text-xs mt-0.5 block">
@@ -148,12 +148,12 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
           {/* Previous Class Due Alert Box */}
           {hasOldDue && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-3">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-3">
               <div>
                 <span className="block text-xs font-black text-red-900">
                   {lang === 'hi' ? 'पिछली कक्षा का बकाया (Previous Class Due)' : 'Previous Class Due'}
                 </span>
-                <span className="text-xl font-black font-mono text-red-600 mt-0.5 block">
+                <span className="text-lg font-black font-mono text-red-600 mt-0.5 block">
                   ₹{student.previous_class_due}
                 </span>
               </div>
@@ -162,10 +162,10 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
                   href={waUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xs transition"
                 >
-                  <MessageSquare size={14} />
-                  <span>{lang === 'hi' ? 'व्हाट्सएप पर बकाया भेजें' : 'WhatsApp Due'}</span>
+                  <MessageSquare size={13} />
+                  <span>{lang === 'hi' ? 'व्हाट्सएप भेजें' : 'WhatsApp Due'}</span>
                 </a>
               )}
             </div>
@@ -173,32 +173,32 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
           {/* Section 2: Multi-Year Academic History */}
           <div>
-            <div className="flex items-center gap-2 mb-2.5">
-              <Calendar size={16} className="text-blue-700" />
-              <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Calendar size={14} className="text-blue-700" />
+              <h4 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
                 {lang === 'hi' ? 'कक्षा एवं सत्र इतिहास (Academic History)' : 'Multi-Year Academic History'}
               </h4>
             </div>
 
-            <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-extrabold">
-                    <th className="p-2.5">{lang === 'hi' ? 'सत्र (Session)' : 'Session'}</th>
-                    <th className="p-2.5">{lang === 'hi' ? 'कक्षा (Class)' : 'Class'}</th>
-                    <th className="p-2.5 text-center">{lang === 'hi' ? 'क्रमांक' : 'Roll'}</th>
-                    <th className="p-2.5 text-right">{lang === 'hi' ? 'बकाया स्थिति' : 'Due Status'}</th>
+                    <th className="py-1.5 px-2.5">{lang === 'hi' ? 'सत्र (Session)' : 'Session'}</th>
+                    <th className="py-1.5 px-2.5">{lang === 'hi' ? 'कक्षा (Class)' : 'Class'}</th>
+                    <th className="py-1.5 px-2.5 text-center">{lang === 'hi' ? 'क्रमांक' : 'Roll'}</th>
+                    <th className="py-1.5 px-2.5 text-right">{lang === 'hi' ? 'बकाया स्थिति' : 'Due Status'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {/* Current Active Session */}
                   <tr className="bg-blue-50/50">
-                    <td className="p-2.5 font-bold text-blue-900 font-mono">
-                      {student.academic_year} <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-sans">{lang === 'hi' ? 'वर्तमान' : 'Current'}</span>
+                    <td className="py-1.5 px-2.5 font-bold text-blue-900 font-mono">
+                      {student.academic_year} <span className="text-[9px] bg-blue-100 text-blue-800 px-1 py-0.2 rounded font-sans">{lang === 'hi' ? 'वर्तमान' : 'Current'}</span>
                     </td>
-                    <td className="p-2.5 font-bold text-slate-800">{student.class_name}</td>
-                    <td className="p-2.5 text-center font-mono font-bold text-slate-700">{student.roll_no}</td>
-                    <td className="p-2.5 text-right font-mono font-bold">
+                    <td className="py-1.5 px-2.5 font-bold text-slate-800">{student.class_name}</td>
+                    <td className="py-1.5 px-2.5 text-center font-mono font-bold text-slate-700">{student.roll_no}</td>
+                    <td className="py-1.5 px-2.5 text-right font-mono font-bold">
                       {student.previous_class_due > 0 ? (
                         <span className="text-red-600">₹{student.previous_class_due}</span>
                       ) : (
@@ -209,11 +209,11 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
                   {/* Past Snapshots from StudentClassHistory */}
                   {(student.history || []).map((h) => (
-                    <tr key={h.id} className="text-slate-600">
-                      <td className="p-2.5 font-mono">{h.academic_year}</td>
-                      <td className="p-2.5">{h.class_name}</td>
-                      <td className="p-2.5 text-center font-mono">{h.roll_no}</td>
-                      <td className="p-2.5 text-right font-mono">
+                    <tr key={h.id} className="text-slate-600 hover:bg-slate-50">
+                      <td className="py-1.5 px-2.5 font-mono">{h.academic_year}</td>
+                      <td className="py-1.5 px-2.5">{h.class_name}</td>
+                      <td className="py-1.5 px-2.5 text-center font-mono">{h.roll_no}</td>
+                      <td className="py-1.5 px-2.5 text-right font-mono">
                         {h.pending_due_amount > 0 ? `₹${h.pending_due_amount}` : '₹0'}
                       </td>
                     </tr>
@@ -225,27 +225,27 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
           {/* Section 3: Fee Payment Receipts History */}
           <div>
-            <div className="flex items-center gap-2 mb-2.5">
-              <Receipt size={16} className="text-emerald-700" />
-              <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Receipt size={14} className="text-emerald-700" />
+              <h4 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
                 {lang === 'hi' ? 'जारी की गई रसीदें (Payment Receipts)' : 'Payment History & Receipts'}
               </h4>
             </div>
 
             {(!student.payments || student.payments.length === 0) ? (
-              <div className="p-6 text-center text-slate-400 font-semibold text-xs border border-dashed border-slate-200 rounded-xl">
+              <div className="p-4 text-center text-slate-400 font-semibold text-xs border border-dashed border-slate-200 rounded-lg">
                 {lang === 'hi' ? 'अभी तक कोई भुगतान नहीं हुआ है।' : 'No payment records yet.'}
               </div>
             ) : (
-              <div className="border border-slate-200 rounded-xl overflow-hidden max-h-52 overflow-y-auto">
+              <div className="border border-slate-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead className="sticky top-0 bg-slate-100 border-b border-slate-200 text-slate-700 font-extrabold">
                     <tr>
-                      <th className="p-2.5">{lang === 'hi' ? 'रसीद संख्या' : 'Receipt No'}</th>
-                      <th className="p-2.5">{lang === 'hi' ? 'मद / महीना' : 'Fee Head'}</th>
-                      <th className="p-2.5 text-right">{lang === 'hi' ? 'राशि' : 'Amount'}</th>
-                      <th className="p-2.5 text-center">{lang === 'hi' ? 'तारीख' : 'Date'}</th>
-                      <th className="p-2.5 text-center">{lang === 'hi' ? 'प्रिंट' : 'Print'}</th>
+                      <th className="py-1.5 px-2.5">{lang === 'hi' ? 'रसीद संख्या' : 'Receipt No'}</th>
+                      <th className="py-1.5 px-2.5">{lang === 'hi' ? 'मद / महीना' : 'Fee Head'}</th>
+                      <th className="py-1.5 px-2.5 text-right">{lang === 'hi' ? 'राशि' : 'Amount'}</th>
+                      <th className="py-1.5 px-2.5 text-center">{lang === 'hi' ? 'तारीख' : 'Date'}</th>
+                      <th className="py-1.5 px-2.5 text-center">{lang === 'hi' ? 'प्रिंट' : 'Print'}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
@@ -257,20 +257,20 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
 
                       return (
                         <tr key={p.id} className="hover:bg-slate-50 transition">
-                          <td className="p-2.5 font-mono font-bold text-blue-900">{p.receipt_no}</td>
-                          <td className="p-2.5 font-semibold text-slate-800">
+                          <td className="py-1.5 px-2.5 font-mono font-bold text-blue-900">{p.receipt_no}</td>
+                          <td className="py-1.5 px-2.5 font-semibold text-slate-800">
                             {lang === 'hi' ? headInfo?.labelHi || p.fee_head : headInfo?.labelEn || p.fee_head}
                           </td>
-                          <td className="p-2.5 text-right font-mono font-bold text-emerald-700">₹{p.amount_paid}</td>
-                          <td className="p-2.5 text-center text-slate-600">{formatDateIndian(p.payment_date)}</td>
-                          <td className="p-2.5 text-center">
+                          <td className="py-1.5 px-2.5 text-right font-mono font-bold text-emerald-700">₹{p.amount_paid}</td>
+                          <td className="py-1.5 px-2.5 text-center text-slate-600">{formatDateIndian(p.payment_date)}</td>
+                          <td className="py-1.5 px-2.5 text-center">
                             <button
                               type="button"
                               onClick={() => onViewReceipt(p.receipt_no)}
                               className="text-blue-700 hover:text-blue-800 font-bold hover:underline inline-flex items-center gap-0.5 text-[11px]"
                             >
                               <span>{lang === 'hi' ? 'रसीद' : 'View'}</span>
-                              <ArrowUpRight size={12} />
+                              <ArrowUpRight size={11} />
                             </button>
                           </td>
                         </tr>
@@ -284,18 +284,18 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
         </div>
 
         {/* Action Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-2.5 px-3.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleToggleStatus}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
                 isActive
                   ? 'bg-amber-100 hover:bg-amber-200 text-amber-800'
                   : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800'
               }`}
             >
-              {isActive ? <UserMinus size={14} /> : <UserCheck size={14} />}
+              {isActive ? <UserMinus size={13} /> : <UserCheck size={13} />}
               <span>
                 {isActive
                   ? lang === 'hi' ? 'स्कूल छोड़ दिया (TC)' : 'Mark Left'
@@ -306,9 +306,9 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
             <button
               type="button"
               onClick={onEdit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-300 hover:bg-slate-100 text-slate-700 transition"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border border-slate-300 hover:bg-slate-100 text-slate-700 transition"
             >
-              <Edit size={14} />
+              <Edit size={13} />
               <span>{lang === 'hi' ? 'एडिट करें' : 'Edit'}</span>
             </button>
           </div>
@@ -316,7 +316,7 @@ export const StudentHistoryModal: React.FC<StudentHistoryModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow transition"
+            className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs rounded-lg shadow-xs transition"
           >
             {t('close')}
           </button>

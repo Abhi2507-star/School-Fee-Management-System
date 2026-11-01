@@ -79,62 +79,70 @@ export const ReportsAndDuesView: React.FC = () => {
   const totalDuesCalculated = defaulters.reduce((sum, d) => sum + d.total_due, 0);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* 4 Summary Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between opacity-80 text-xs font-semibold">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>{t('todayCollection')}</span>
-            <Calendar size={18} />
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <Calendar size={15} />
+            </div>
           </div>
-          <div className="text-2xl font-black font-mono mt-1">₹{summary?.today_total || 0}</div>
+          <div className="text-xl font-bold font-mono text-slate-900 mt-1">₹{summary?.today_total || 0}</div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-700 to-indigo-800 text-white p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between opacity-80 text-xs font-semibold">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>{t('monthCollection')}</span>
-            <TrendingUp size={18} />
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+              <TrendingUp size={15} />
+            </div>
           </div>
-          <div className="text-2xl font-black font-mono mt-1">₹{summary?.month_total || 0}</div>
+          <div className="text-xl font-bold font-mono text-slate-900 mt-1">₹{summary?.month_total || 0}</div>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-600 to-orange-700 text-white p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between opacity-80 text-xs font-semibold">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>{t('totalStudents')}</span>
-            <Users size={18} />
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Users size={15} />
+            </div>
           </div>
-          <div className="text-2xl font-black font-mono mt-1 flex items-baseline gap-2">
+          <div className="text-xl font-bold font-mono text-slate-900 mt-1 flex items-baseline gap-1.5">
             <span>{summary?.total_active || summary?.total_students || 0}</span>
-            <span className="text-xs opacity-75 font-normal">
+            <span className="text-[11px] text-slate-400 font-normal">
               ({summary?.total_left || 0} {lang === 'hi' ? 'स्कूल छोड़े' : 'Left'})
             </span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-rose-700 to-red-800 text-white p-4 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-between opacity-80 text-xs font-semibold">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>{t('totalDues')}</span>
-            <AlertTriangle size={18} />
+            <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center">
+              <AlertTriangle size={15} />
+            </div>
           </div>
-          <div className="text-2xl font-black font-mono mt-1">₹{totalDuesCalculated}</div>
+          <div className="text-xl font-bold font-mono text-rose-700 mt-1">₹{totalDuesCalculated}</div>
         </div>
       </div>
 
       {msg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold rounded-xl">
+        <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-lg">
           {msg}
         </div>
       )}
 
       {/* Defaulter / Pending Dues List with WhatsApp Reminders */}
-      <div className="bg-white rounded-2xl border border-slate-300 shadow-sm p-5 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
           <div>
-            <h3 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-600"></span>
               <span>{lang === 'hi' ? 'बकाया फीस सूची एवं व्हाट्सएप संदेश' : 'Pending Fee Dues & WhatsApp Reminders'}</span>
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] text-slate-500">
               {lang === 'hi'
                 ? 'जिन बच्चों की फीस बाकी है, उन्हें सीधे 1-क्लिक में व्हाट्सएप पर बकाया सूचना भेजें।'
                 : 'Send 1-click polite payment reminders directly to parents on WhatsApp.'}
@@ -142,7 +150,7 @@ export const ReportsAndDuesView: React.FC = () => {
           </div>
 
           {/* Filters: Class, Village & Status */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
             {/* Status Filter */}
             <select
               value={statusFilter}
@@ -185,41 +193,41 @@ export const ReportsAndDuesView: React.FC = () => {
         </div>
 
         {/* Defaulters Table */}
-        <div className="overflow-x-auto max-h-96">
+        <div className="overflow-x-auto max-h-[380px] rounded-lg border border-slate-200">
           <table className="w-full text-xs border-collapse">
-            <thead className="sticky top-0 bg-slate-100 border-b z-10 text-slate-700 font-extrabold">
+            <thead className="sticky top-0 bg-slate-100 border-b z-10 text-slate-700 font-bold">
               <tr>
-                <th className="py-2.5 px-3 text-center w-12">{t('rollNo')}</th>
-                <th className="py-2.5 px-3 text-left">{t('studentName')}</th>
-                <th className="py-2.5 px-3 text-left">{t('fatherName')}</th>
-                <th className="py-2.5 px-3 text-left">{lang === 'hi' ? 'कक्षा' : 'Class'}</th>
-                <th className="py-2.5 px-3 text-left">{t('village')}</th>
-                <th className="py-2.5 px-3 text-right">{lang === 'hi' ? 'पिछला बकाया' : 'Old Due'}</th>
-                <th className="py-2.5 px-3 text-right">{lang === 'hi' ? 'चालू बकाया' : 'Current Due'}</th>
-                <th className="py-2.5 px-3 text-right">{lang === 'hi' ? 'कुल बकाया' : 'Total Due'}</th>
-                <th className="py-2.5 px-3 text-center">{lang === 'hi' ? 'व्हाट्सएप भेजें' : 'WhatsApp'}</th>
+                <th className="py-2 px-2.5 text-center w-12">{t('rollNo')}</th>
+                <th className="py-2 px-2.5 text-left">{t('studentName')}</th>
+                <th className="py-2 px-2.5 text-left">{t('fatherName')}</th>
+                <th className="py-2 px-2 text-left">{lang === 'hi' ? 'कक्षा' : 'Class'}</th>
+                <th className="py-2 px-2 text-left">{t('village')}</th>
+                <th className="py-2 px-2 text-right">{lang === 'hi' ? 'पिछला बकाया' : 'Old Due'}</th>
+                <th className="py-2 px-2 text-right">{lang === 'hi' ? 'चालू बकाया' : 'Current Due'}</th>
+                <th className="py-2 px-2 text-right">{lang === 'hi' ? 'कुल बकाया' : 'Total Due'}</th>
+                <th className="py-2 px-2 text-center">{lang === 'hi' ? 'व्हाट्सएप भेजें' : 'WhatsApp'}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {defaulters.map((d) => (
-                <tr key={d.id} className="hover:bg-slate-50 transition">
-                  <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-700">#{d.roll_no}</td>
-                  <td className="py-2.5 px-3 font-bold text-slate-900">
+                <tr key={d.id} className="hover:bg-slate-50/80 transition">
+                  <td className="py-1.5 px-2.5 text-center font-mono font-bold text-slate-700">#{d.roll_no}</td>
+                  <td className="py-1.5 px-2.5 font-bold text-slate-900">
                     <div className="flex items-center gap-1.5">
                       <span>{d.student_name}</span>
                       {d.status === 'LEFT' && (
-                        <span className="text-[9px] bg-amber-100 text-amber-800 font-black px-1.5 py-0.2 rounded">
+                        <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
                           {lang === 'hi' ? 'TC' : 'LEFT'}
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="py-2.5 px-3 text-slate-700">{d.father_name}</td>
-                  <td className="py-2.5 px-3 font-semibold text-slate-800">{d.class_name}</td>
-                  <td className="py-2.5 px-3 text-slate-600">{d.village}</td>
+                  <td className="py-1.5 px-2.5 text-slate-700">{d.father_name}</td>
+                  <td className="py-1.5 px-2 font-semibold text-slate-800">{d.class_name}</td>
+                  <td className="py-1.5 px-2 text-slate-600">{d.village}</td>
 
                   {/* Previous Class Due */}
-                  <td className="py-2.5 px-3 text-right font-mono font-bold">
+                  <td className="py-1.5 px-2 text-right font-mono font-bold">
                     {d.previous_class_due > 0 ? (
                       <span className="text-red-700">₹{d.previous_class_due}</span>
                     ) : (
@@ -228,26 +236,26 @@ export const ReportsAndDuesView: React.FC = () => {
                   </td>
 
                   {/* Current Class Due */}
-                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700">
+                  <td className="py-1.5 px-2 text-right font-mono font-bold text-slate-700">
                     ₹{d.current_class_due}
                   </td>
 
                   {/* Total Due */}
-                  <td className="py-2.5 px-3 text-right font-mono font-black text-red-700 text-sm">
+                  <td className="py-1.5 px-2 text-right font-mono font-bold text-red-700">
                     ₹{d.total_due}
                   </td>
 
                   {/* WhatsApp Action */}
-                  <td className="py-2.5 px-3 text-center">
+                  <td className="py-1.5 px-2 text-center">
                     {d.mobile && d.whatsapp_url ? (
                       <a
                         href={d.whatsapp_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow-sm transition active:scale-95"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-bold text-[11px] shadow-2xs transition active:scale-95"
                         title={d.whatsapp_message}
                       >
-                        <MessageSquare size={13} />
+                        <MessageSquare size={12} />
                         <span>{lang === 'hi' ? 'व्हाट्सएप' : 'WhatsApp'}</span>
                       </a>
                     ) : (
@@ -270,9 +278,9 @@ export const ReportsAndDuesView: React.FC = () => {
       </div>
 
       {/* Recent Payments Log with Option to Delete/Correct Mistaken Entry */}
-      <div className="bg-white rounded-2xl border border-slate-300 shadow-sm p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
         <div>
-          <h3 className="text-base font-black text-slate-900 tracking-tight">
+          <h3 className="text-sm font-bold text-slate-900 tracking-tight">
             {lang === 'hi' ? 'हालिया जमा फीस लॉग (Recent Payments Entry Log)' : 'Recent Payments Entry Log'}
           </h3>
           <p className="text-xs text-slate-500">

@@ -67,83 +67,83 @@ export const FeeStructureEditor: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-300 shadow-sm p-5 space-y-4">
-      <div className="flex flex-wrap items-center justify-between border-b pb-3 gap-2">
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
         <div>
-          <h3 className="text-base font-black text-slate-900 tracking-tight">
+          <h3 className="text-sm font-bold text-slate-900 tracking-tight">
             {t('manageFees')}
           </h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-[11px] text-slate-500">
             {lang === 'hi'
-              ? 'प्रत्येक कक्षा (Class 1 से Class 8) के लिए मासिक शुल्क, परीक्षा शुल्क व प्रवेश शुल्क निर्धारित करें।'
-              : 'Configure Monthly Fee, Exam Fee, and Default Admission Fee for each class.'}
+              ? 'प्रत्येक कक्षा (LKG से Class 12) के लिए मासिक शुल्क, परीक्षा शुल्क व प्रवेश शुल्क निर्धारित करें।'
+              : 'Configure Monthly Fee, Exam Fee, and Default Admission Fee for each class (LKG to Class 12).'}
           </p>
         </div>
       </div>
 
       {msg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle size={16} />
+        <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs flex items-center gap-2">
+          <CheckCircle size={15} />
           <span>{msg}</span>
         </div>
       )}
 
       {err && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
-          <AlertCircle size={16} />
+        <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs flex items-center gap-2">
+          <AlertCircle size={15} />
           <span>{err}</span>
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full text-xs border-collapse">
           <thead>
-            <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
-              <th className="py-2.5 px-3 text-left font-bold">{lang === 'hi' ? 'कक्षा (Class)' : 'Class'}</th>
-              <th className="py-2.5 px-3 text-right font-bold">{t('monthlyFee')} (₹)</th>
-              <th className="py-2.5 px-3 text-right font-bold">{t('examFee')} (₹)</th>
-              <th className="py-2.5 px-3 text-right font-bold">{t('admissionFee')} (₹)</th>
-              <th className="py-2.5 px-3 text-center font-bold">{t('actions')}</th>
+            <tr className="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold">
+              <th className="py-2 px-3 text-left">{lang === 'hi' ? 'कक्षा (Class)' : 'Class'}</th>
+              <th className="py-2 px-3 text-right">{t('monthlyFee')} (₹)</th>
+              <th className="py-2 px-3 text-right">{t('examFee')} (₹)</th>
+              <th className="py-2 px-3 text-right">{t('admissionFee')} (₹)</th>
+              <th className="py-2 px-3 text-center w-24">{t('actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-slate-100">
             {structures.map((s) => (
-              <tr key={s.class_name} className="hover:bg-slate-50">
-                <td className="py-2.5 px-3 font-black text-slate-900 text-sm">
+              <tr key={s.class_name} className="hover:bg-slate-50/80 transition">
+                <td className="py-2 px-3 font-bold text-slate-900">
                   {s.class_name}
                 </td>
-                <td className="py-2 px-3 text-right">
+                <td className="py-1.5 px-3 text-right">
                   <input
                     type="number"
                     value={s.monthly_fee}
                     onChange={(e) => handleChange(s.class_name, 'monthly_fee', Number(e.target.value))}
-                    className="w-24 border border-slate-300 rounded-lg px-2 py-1 text-right font-mono font-bold"
+                    className="w-20 border border-slate-300 rounded-md px-2 py-1 text-right font-mono font-bold text-xs"
                   />
                 </td>
-                <td className="py-2 px-3 text-right">
+                <td className="py-1.5 px-3 text-right">
                   <input
                     type="number"
                     value={s.exam_fee}
                     onChange={(e) => handleChange(s.class_name, 'exam_fee', Number(e.target.value))}
-                    className="w-24 border border-slate-300 rounded-lg px-2 py-1 text-right font-mono font-bold"
+                    className="w-20 border border-slate-300 rounded-md px-2 py-1 text-right font-mono font-bold text-xs"
                   />
                 </td>
-                <td className="py-2 px-3 text-right">
+                <td className="py-1.5 px-3 text-right">
                   <input
                     type="number"
                     value={s.default_admission_fee}
                     onChange={(e) => handleChange(s.class_name, 'default_admission_fee', Number(e.target.value))}
-                    className="w-24 border border-slate-300 rounded-lg px-2 py-1 text-right font-mono font-bold"
+                    className="w-20 border border-slate-300 rounded-md px-2 py-1 text-right font-mono font-bold text-xs"
                   />
                 </td>
-                <td className="py-2 px-3 text-center">
+                <td className="py-1.5 px-3 text-center">
                   <button
                     onClick={() => handleSave(s.class_name)}
                     disabled={savingClass === s.class_name}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-md transition"
                   >
-                    <Save size={13} />
-                    <span>{savingClass === s.class_name ? '...' : lang === 'hi' ? 'सेव करें' : 'Save'}</span>
+                    <Save size={12} />
+                    <span>{savingClass === s.class_name ? '...' : lang === 'hi' ? 'सेव' : 'Save'}</span>
                   </button>
                 </td>
               </tr>

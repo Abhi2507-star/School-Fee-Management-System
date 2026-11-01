@@ -122,56 +122,56 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 my-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-amber-700 text-white px-5 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-orange-600 to-amber-700 text-white px-4 py-3 flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-orange-200">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-orange-200">
               {lang === 'hi' ? '3-क्लिक फीस भुगतान' : '3-Click Fee Submission'}
             </div>
-            <h3 className="text-lg font-black tracking-tight mt-0.5">
+            <h3 className="text-base font-black tracking-tight">
               {t('payFee')} — {student.student_name}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white p-1.5 hover:bg-white/10 rounded-lg transition"
+            className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Student Info Bar */}
-        <div className="bg-orange-50/70 border-b border-orange-200 px-5 py-3 text-xs flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+        <div className="bg-orange-50/70 border-b border-orange-200 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-1.5">
+          <div className="flex items-center gap-2.5">
             <span className="font-extrabold text-orange-950">
-              क्रमांक: <span className="font-mono text-sm">{student.roll_no}</span>
+              क्रमांक: <span className="font-mono">{student.roll_no}</span>
             </span>
-            <span className="text-slate-400">|</span>
+            <span className="text-slate-300">|</span>
             <span className="text-slate-700">
               पिता: <strong>{student.father_name}</strong>
             </span>
-            <span className="text-slate-400">|</span>
+            <span className="text-slate-300">|</span>
             <span className="text-slate-700">गाँव: {student.village}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="bg-orange-600 text-white font-extrabold px-2.5 py-0.5 rounded-full text-[11px]">
+          <div className="flex items-center gap-1.5">
+            <span className="bg-orange-600 text-white font-extrabold px-2 py-0.5 rounded-full text-[10px]">
               {student.class_name} ({student.academic_year})
             </span>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-3.5 sm:p-4 space-y-3 max-h-[78vh] overflow-y-auto">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 font-bold text-xs">
-              <AlertCircle size={16} className="shrink-0" />
+            <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 font-bold text-xs">
+              <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Row 1: Payment Date & Quick Select Button */}
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
               <label className="text-xs font-bold text-slate-700">
                 {lang === 'hi' ? 'भुगतान तारीख:' : 'Payment Date:'}
@@ -180,7 +180,7 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                 type="date"
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
-                className="border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-semibold"
+                className="border border-slate-300 rounded-md px-2 py-0.5 text-xs font-semibold"
               />
             </div>
             <button
@@ -194,24 +194,24 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
 
           {/* FEATURE 4: Previous Class Due Checkbox (if previous_class_due > 0) */}
           {hasPreviousDue && (
-            <div className="p-3.5 bg-red-50 rounded-xl border-2 border-red-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <label className="flex items-start sm:items-center gap-2.5 cursor-pointer">
+            <div className="p-2.5 bg-red-50 rounded-lg border border-red-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="flex items-start sm:items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={payOldBalance}
                   onChange={(e) => setPayOldBalance(e.target.checked)}
-                  className="w-4 h-4 rounded text-red-600 focus:ring-0 mt-0.5 sm:mt-0"
+                  className="w-3.5 h-3.5 rounded text-red-600 focus:ring-0 mt-0.5 sm:mt-0"
                 />
                 <div>
                   <div className="text-xs font-black text-red-900 flex items-center gap-1.5">
-                    <History size={14} className="text-red-600" />
+                    <History size={13} className="text-red-600" />
                     <span>
                       {lang === 'hi'
                         ? 'पिछली कक्षा का बकाया जमा करें (Pay Old Class Due)'
                         : 'Pay Previous Class Due'}
                     </span>
                   </div>
-                  <div className="text-[11px] text-red-700 font-semibold">
+                  <div className="text-[10px] text-red-700 font-semibold">
                     {lang === 'hi'
                       ? `कुल पिछला बकाया: ₹${student.previous_class_due}`
                       : `Total Old Due: ₹${student.previous_class_due}`}
@@ -220,7 +220,7 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
               </label>
 
               {payOldBalance && (
-                <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                <div className="flex items-center gap-1 self-end sm:self-auto">
                   <span className="text-xs font-bold text-red-900">₹</span>
                   <input
                     type="number"
@@ -228,7 +228,7 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                     max={student.previous_class_due}
                     value={oldBalanceAmount}
                     onChange={(e) => setOldBalanceAmount(Number(e.target.value))}
-                    className="w-24 border border-red-300 rounded-lg px-2 py-1 text-xs font-mono font-bold text-red-900 bg-white"
+                    className="w-20 border border-red-300 rounded-md px-2 py-0.5 text-xs font-mono font-bold text-red-900 bg-white"
                   />
                 </div>
               )}
@@ -237,13 +237,13 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
 
           {/* Months & Exam Heads Grid */}
           <div>
-            <div className="text-xs font-bold text-slate-700 mb-2">
+            <div className="text-xs font-bold text-slate-700 mb-1.5">
               {lang === 'hi'
                 ? `चालू कक्षा शुल्क (${student.class_name} - ${student.academic_year})`
                 : `Current Class Fees (${student.class_name} - ${student.academic_year})`}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               {FEE_HEADS_LIST.map((head) => {
                 const paid = paidMap.get(head.id);
                 const isSelected = selectedHeads.includes(head.id);
@@ -256,12 +256,12 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                   cost = examFee;
                 }
 
-                // If not applicable due to joining month (e.g. joined in July, so Apr-Jun not applicable)
+                // If not applicable due to joining month
                 if (!isApplicable) {
                   return (
                     <div
                       key={head.id}
-                      className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 flex flex-col justify-between select-none"
+                      className="p-1.5 px-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 flex flex-col justify-between select-none"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold">{lang === 'hi' ? head.shortHi : head.shortEn}</span>
@@ -269,7 +269,7 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                           {lang === 'hi' ? 'दाखिला पूर्व' : 'Before Adm'}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-1">—</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">—</div>
                     </div>
                   );
                 }
@@ -279,13 +279,13 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                   return (
                     <div
                       key={head.id}
-                      className="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-950 flex flex-col justify-between select-none opacity-80"
+                      className="p-1.5 px-2 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-950 flex flex-col justify-between select-none opacity-85"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold">{lang === 'hi' ? head.shortHi : head.shortEn}</span>
-                        <span className="text-[10px] bg-emerald-200 text-emerald-800 font-extrabold px-1 rounded">✓ {t('paid')}</span>
+                        <span className="text-[9px] bg-emerald-200 text-emerald-800 font-extrabold px-1 rounded">✓ {t('paid')}</span>
                       </div>
-                      <div className="text-[11px] font-mono text-emerald-700 mt-1 font-bold">₹{paid.amount}</div>
+                      <div className="text-[10px] font-mono text-emerald-700 mt-0.5 font-bold">₹{paid.amount}</div>
                     </div>
                   );
                 }
@@ -295,13 +295,13 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                   return (
                     <div
                       key={head.id}
-                      className="p-2.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-900 flex flex-col justify-between select-none"
+                      className="p-1.5 px-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-900 flex flex-col justify-between select-none"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold">{lang === 'hi' ? head.shortHi : head.shortEn}</span>
-                        <span className="text-[10px] bg-blue-200 text-blue-800 font-extrabold px-1 rounded">{t('free')}</span>
+                        <span className="text-[9px] bg-blue-200 text-blue-800 font-extrabold px-1 rounded">{t('free')}</span>
                       </div>
-                      <div className="text-[11px] text-blue-700 mt-1 font-semibold">₹0 (निःशुल्क)</div>
+                      <div className="text-[10px] text-blue-700 mt-0.5 font-semibold">₹0 (निःशुल्क)</div>
                     </div>
                   );
                 }
@@ -311,23 +311,23 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
                     key={head.id}
                     type="button"
                     onClick={() => toggleHead(head.id)}
-                    className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${
+                    className={`p-1.5 px-2 rounded-lg border text-left transition flex flex-col justify-between ${
                       isSelected
-                        ? 'border-orange-500 bg-orange-50 text-orange-950 ring-2 ring-orange-500 shadow-sm'
+                        ? 'border-orange-500 bg-orange-50 text-orange-950 ring-1 ring-orange-500 shadow-xs'
                         : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
                     }`}
                   >
                     <div className="flex items-center justify-between w-full">
                       <span className="text-xs font-bold">{lang === 'hi' ? head.shortHi : head.shortEn}</span>
                       <span
-                        className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-bold ${
+                        className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[9px] font-bold ${
                           isSelected ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-300 bg-white'
                         }`}
                       >
-                        {isSelected && <Check size={12} strokeWidth={3} />}
+                        {isSelected && <Check size={11} strokeWidth={3} />}
                       </span>
                     </div>
-                    <div className="text-[11px] font-mono font-bold text-slate-600 mt-1">₹{cost}</div>
+                    <div className="text-[10px] font-mono font-bold text-slate-600 mt-0.5">₹{cost}</div>
                   </button>
                 );
               })}
@@ -335,38 +335,38 @@ export const PayFeeModal: React.FC<PayFeeModalProps> = ({
           </div>
 
           {/* Total Calculation Bar */}
-          <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white p-4 rounded-xl flex items-center justify-between shadow-md">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white p-3 rounded-lg flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-2">
-              <Calculator size={20} className="text-orange-200" />
+              <Calculator size={18} className="text-orange-200" />
               <div>
-                <div className="text-[11px] uppercase tracking-wider font-semibold text-orange-100">
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-orange-100">
                   {lang === 'hi' ? 'कुल देय राशि' : 'Total Amount to Pay'}
                 </div>
-                <div className="text-xs text-orange-100">
+                <div className="text-[11px] text-orange-100">
                   {selectedHeads.length} {lang === 'hi' ? 'मद चयनित' : 'items selected'}
                   {payOldBalance ? ` + पिछला बकाया` : ''}
                 </div>
               </div>
             </div>
-            <div className="text-2xl font-black font-mono tracking-tight bg-white/20 px-4 py-1 rounded-lg">
+            <div className="text-xl font-black font-mono tracking-tight bg-white/20 px-3 py-0.5 rounded-md">
               ₹{totalAmount}
             </div>
           </div>
 
           {/* Submit Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex items-center justify-end gap-2.5 pt-1">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs hover:bg-slate-100 transition"
+              className="px-3.5 py-1.5 border border-slate-300 rounded-lg text-slate-700 font-bold text-xs hover:bg-slate-100 transition"
             >
               {t('close')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || totalAmount <= 0}
-              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-lg transition transform active:scale-95"
+              className="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-lg shadow-sm transition transform active:scale-95"
             >
               {isSubmitting ? (lang === 'hi' ? 'सुरक्षित हो रहा है...' : 'Saving...') : t('saveAndPrint')}
             </button>

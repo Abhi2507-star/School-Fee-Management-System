@@ -190,28 +190,28 @@ export const ClassPromotionTab: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-3.5 animate-fade-in">
       {/* Title Card */}
-      <div className="bg-gradient-to-r from-indigo-800 to-blue-900 text-white p-5 rounded-2xl shadow-lg border border-indigo-700">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-slate-900 text-white p-3.5 sm:p-4 rounded-xl shadow-sm border border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <Sparkles size={20} className="text-amber-300" />
-              <h2 className="text-xl font-black tracking-tight">
+              <Sparkles size={18} className="text-amber-400" />
+              <h2 className="text-base sm:text-lg font-black tracking-tight">
                 {lang === 'hi'
                   ? 'अगली कक्षा में प्रमोट करें (Class Promotion)'
                   : '1-Click Class Promotion & Transition'}
               </h2>
             </div>
-            <p className="text-xs text-indigo-200 mt-1">
+            <p className="text-[11px] text-slate-300 mt-0.5">
               {lang === 'hi'
                 ? 'सत्र समाप्त होने पर बच्चों को अगली कक्षा में भेजें। बकाया फीस स्वतः नए सत्र में "पिछला बकाया" बनकर जुड़ जाएगी।'
                 : 'Promote active students to next class while carrying forward unpaid dues automatically.'}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold bg-white/10 px-2.5 py-1 rounded-lg border border-white/20">
               {students.length} {lang === 'hi' ? 'बच्चे उपस्थित' : 'Students Found'}
             </span>
           </div>
@@ -219,18 +219,18 @@ export const ClassPromotionTab: React.FC = () => {
       </div>
 
       {/* Class & Session Transition Bar */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4">
+      <div className="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200/90 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-2.5">
           {/* Source Class & Session */}
-          <div className="md:col-span-2 space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-            <span className="block text-[11px] font-bold text-slate-500 uppercase">
+          <div className="md:col-span-2 space-y-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <span className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
               {lang === 'hi' ? 'वर्तमान कक्षा एवं सत्र (Current)' : 'From Class & Session'}
             </span>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={sourceClass}
                 onChange={(e) => handleSourceClassChange(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-800 bg-white text-xs"
+                className="w-full border border-slate-300 rounded-md px-2 py-1 font-bold text-slate-800 bg-white text-xs"
               >
                 {CLASSES_LIST.map((c) => (
                   <option key={c} value={c}>
@@ -241,7 +241,7 @@ export const ClassPromotionTab: React.FC = () => {
               <select
                 value={sourceSession}
                 onChange={(e) => setSourceSession(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 font-bold text-slate-800 bg-white text-xs"
+                className="w-full border border-slate-300 rounded-md px-2 py-1 font-bold text-slate-800 bg-white text-xs"
               >
                 {SESSIONS_LIST.map((s) => (
                   <option key={s} value={s}>
@@ -254,21 +254,21 @@ export const ClassPromotionTab: React.FC = () => {
 
           {/* Arrow */}
           <div className="flex justify-center">
-            <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shadow-sm">
-              <ArrowRight size={20} />
+            <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shadow-xs">
+              <ArrowRight size={16} />
             </div>
           </div>
 
           {/* Target Class & Session */}
-          <div className="md:col-span-2 space-y-2 bg-blue-50/60 p-3.5 rounded-xl border border-blue-200">
-            <span className="block text-[11px] font-bold text-blue-900 uppercase">
+          <div className="md:col-span-2 space-y-1.5 bg-blue-50/60 p-2.5 rounded-lg border border-blue-200">
+            <span className="block text-[10px] font-extrabold text-blue-900 uppercase tracking-wide">
               {lang === 'hi' ? 'प्रमोट होने वाली कक्षा एवं सत्र (Target)' : 'To Target Class & New Session'}
             </span>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={targetClass}
                 onChange={(e) => setTargetClass(e.target.value)}
-                className="w-full border border-blue-300 rounded-lg px-2.5 py-1.5 font-bold text-blue-950 bg-white text-xs"
+                className="w-full border border-blue-300 rounded-md px-2 py-1 font-bold text-blue-950 bg-white text-xs"
               >
                 {CLASSES_LIST.map((c) => (
                   <option key={c} value={c}>
@@ -279,7 +279,7 @@ export const ClassPromotionTab: React.FC = () => {
               <select
                 value={targetSession}
                 onChange={(e) => setTargetSession(e.target.value)}
-                className="w-full border border-blue-300 rounded-lg px-2.5 py-1.5 font-bold text-blue-950 bg-white text-xs"
+                className="w-full border border-blue-300 rounded-md px-2 py-1 font-bold text-blue-950 bg-white text-xs"
               >
                 {SESSIONS_LIST.map((s) => (
                   <option key={s} value={s}>
@@ -294,42 +294,42 @@ export const ClassPromotionTab: React.FC = () => {
 
       {/* Messages */}
       {successMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 font-bold text-xs shadow-sm">
-          <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2 text-emerald-800 font-bold text-xs shadow-xs">
+          <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-red-700 font-bold text-xs shadow-sm">
-          <AlertCircle size={18} className="text-red-600 shrink-0" />
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 font-bold text-xs shadow-xs">
+          <AlertCircle size={16} className="text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Students Checklist Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Table Controls Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-2.5 px-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={18} className="text-indigo-600" />
-            <span className="font-extrabold text-sm text-slate-800">
+            <ShieldCheck size={16} className="text-blue-700" />
+            <span className="font-extrabold text-xs sm:text-sm text-slate-800">
               {lang === 'hi'
                 ? `${sourceClass} के विद्यार्थियों की सूची`
                 : `Student List for ${sourceClass}`}
             </span>
-            <span className="text-xs bg-slate-200 text-slate-700 font-mono font-bold px-2 py-0.5 rounded-full">
+            <span className="text-[11px] bg-slate-200 text-slate-700 font-mono font-bold px-2 py-0.5 rounded-full">
               {promotionList.length}
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setAllActions('PROMOTE')}
               className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
             >
-              <UserCheck size={14} />
+              <UserCheck size={13} />
               <span>{lang === 'hi' ? 'सभी को प्रमोट करें' : 'Promote All'}</span>
             </button>
             <span className="text-slate-300">|</span>
@@ -338,7 +338,7 @@ export const ClassPromotionTab: React.FC = () => {
               onClick={() => setAllActions('LEFT')}
               className="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-1"
             >
-              <UserMinus size={14} />
+              <UserMinus size={13} />
               <span>{lang === 'hi' ? 'सभी को स्कूल छोड़ दिया करें' : 'Mark All Left'}</span>
             </button>
           </div>
@@ -346,31 +346,31 @@ export const ClassPromotionTab: React.FC = () => {
 
         {/* Table Body */}
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500 font-bold">
+          <div className="p-8 text-center text-slate-500 font-bold text-xs">
             {lang === 'hi' ? 'लोड हो रहा है...' : 'Loading students...'}
           </div>
         ) : promotionList.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 font-semibold text-sm">
+          <div className="p-8 text-center text-slate-400 font-semibold text-xs">
             {lang === 'hi'
               ? `${sourceClass} (${sourceSession}) में कोई सक्रिय विद्यार्थी नहीं मिला।`
               : `No active students found in ${sourceClass} (${sourceSession}).`}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[calc(100vh-320px)]">
             <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-100/80 border-b border-slate-200 text-slate-700 font-extrabold">
-                  <th className="p-3 text-center w-16">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-slate-100/90 border-b border-slate-200 text-slate-700 font-extrabold">
+                  <th className="py-2 px-2.5 text-center w-12">
                     {lang === 'hi' ? 'निर्णय' : 'Action'}
                   </th>
-                  <th className="p-3 text-center w-16">{t('rollNo')}</th>
-                  <th className="p-3">{t('studentName')}</th>
-                  <th className="p-3">{t('fatherName')}</th>
-                  <th className="p-3">{t('village')}</th>
-                  <th className="p-3 text-right">
+                  <th className="py-2 px-2 text-center w-14">{t('rollNo')}</th>
+                  <th className="py-2 px-2.5">{t('studentName')}</th>
+                  <th className="py-2 px-2.5">{t('fatherName')}</th>
+                  <th className="py-2 px-2.5">{t('village')}</th>
+                  <th className="py-2 px-2.5 text-right">
                     {lang === 'hi' ? 'इस कक्षा का बकाया' : 'Current Dues'}
                   </th>
-                  <th className="p-3 text-right w-44">
+                  <th className="py-2 px-2.5 text-right w-40">
                     {lang === 'hi' ? 'पिछला बकाया आगे जोड़ें (₹)' : 'Carry Forward Due (₹)'}
                   </th>
                 </tr>
@@ -381,30 +381,30 @@ export const ClassPromotionTab: React.FC = () => {
                   return (
                     <tr
                       key={item.student.id}
-                      className={`hover:bg-slate-50/80 transition ${
+                      className={`hover:bg-slate-50 transition ${
                         !isPromote ? 'bg-amber-50/40 text-slate-500' : ''
                       }`}
                     >
                       {/* Checkbox */}
-                      <td className="p-3 text-center">
+                      <td className="py-1.5 px-2.5 text-center">
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={isPromote}
                             onChange={() => toggleStudentAction(item.student.id)}
-                            className="w-4 h-4 rounded text-blue-600 focus:ring-0"
+                            className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-0"
                           />
                         </label>
                       </td>
 
                       {/* Roll No */}
-                      <td className="p-3 text-center font-mono font-bold text-slate-600">
+                      <td className="py-1.5 px-2 text-center font-mono font-bold text-slate-600">
                         {item.student.roll_no}
                       </td>
 
                       {/* Name with Badge */}
-                      <td className="p-3 font-bold text-slate-900">
-                        <div className="flex items-center gap-2">
+                      <td className="py-1.5 px-2.5 font-bold text-slate-900">
+                        <div className="flex items-center gap-1.5">
                           <span>{item.student.student_name}</span>
                           {!isPromote ? (
                             <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
@@ -419,15 +419,15 @@ export const ClassPromotionTab: React.FC = () => {
                       </td>
 
                       {/* Father */}
-                      <td className="p-3 text-slate-700 font-medium">
+                      <td className="py-1.5 px-2.5 text-slate-700 font-medium">
                         {item.student.father_name}
                       </td>
 
                       {/* Village */}
-                      <td className="p-3 text-slate-600">{item.student.village}</td>
+                      <td className="py-1.5 px-2.5 text-slate-600">{item.student.village}</td>
 
                       {/* Calculated Current Due */}
-                      <td className="p-3 text-right font-mono font-bold text-slate-700">
+                      <td className="py-1.5 px-2.5 text-right font-mono font-bold text-slate-700">
                         {item.calculatedDue > 0 ? (
                           <span className="text-red-600">₹{item.calculatedDue}</span>
                         ) : (
@@ -436,8 +436,8 @@ export const ClassPromotionTab: React.FC = () => {
                       </td>
 
                       {/* Editable Carry Due */}
-                      <td className="p-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-1.5 px-2.5 text-right">
+                        <div className="flex items-center justify-end gap-1">
                           <span className="text-slate-400 font-bold">₹</span>
                           <input
                             type="number"
@@ -446,7 +446,7 @@ export const ClassPromotionTab: React.FC = () => {
                             onChange={(e) =>
                               handleCarryDueChange(item.student.id, Number(e.target.value))
                             }
-                            className="w-24 border border-slate-300 rounded-lg px-2 py-1 text-right font-mono font-bold text-slate-800 bg-white"
+                            className="w-20 border border-slate-300 rounded-md px-1.5 py-0.5 text-right font-mono font-bold text-slate-800 bg-white text-xs"
                           />
                         </div>
                       </td>
@@ -459,7 +459,7 @@ export const ClassPromotionTab: React.FC = () => {
         )}
 
         {/* Footer & Big Promote Button */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="p-2.5 px-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs font-semibold text-slate-700">
             {lang === 'hi' ? (
               <span>
@@ -478,9 +478,9 @@ export const ClassPromotionTab: React.FC = () => {
             type="button"
             onClick={handleExecutePromotion}
             disabled={isSubmitting || promotionList.length === 0}
-            className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-4 py-1.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-extrabold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5"
           >
-            <Sparkles size={16} />
+            <Sparkles size={14} />
             <span>
               {isSubmitting
                 ? lang === 'hi'

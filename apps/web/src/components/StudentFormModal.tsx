@@ -173,12 +173,12 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 my-6">
-        <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-5 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <UserPlus size={20} className="text-blue-200" />
-            <h3 className="text-lg font-black tracking-tight">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 my-4">
+        <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UserPlus size={18} className="text-blue-200" />
+            <h3 className="text-base font-black tracking-tight">
               {isEditing
                 ? lang === 'hi'
                   ? 'विद्यार्थी विवरण बदलें (Edit Student)'
@@ -190,30 +190,30 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition"
+            className="text-white/80 hover:text-white hover:bg-white/10 p-1 rounded-lg transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-sm max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-3.5 sm:p-4 space-y-3 text-xs max-h-[80vh] overflow-y-auto">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 font-bold text-xs">
-              <AlertCircle size={16} className="shrink-0" />
+            <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 font-bold text-xs">
+              <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Row 1: Class, Session & Roll No */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
+              <label className="block font-bold text-slate-700 mb-0.5">
                 {lang === 'hi' ? '1. कक्षा (Class)' : '1. Class'}
               </label>
               <select
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-bold text-slate-800"
+                className="w-full border border-slate-300 rounded-md px-2 py-1.5 bg-white font-bold text-slate-800 text-xs"
               >
                 {CLASSES_LIST.map((c) => (
                   <option key={c} value={c}>
@@ -224,13 +224,13 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
+              <label className="block font-bold text-slate-700 mb-0.5">
                 {lang === 'hi' ? '2. सत्र (Session)' : '2. Session'}
               </label>
               <select
                 value={academicYear}
                 onChange={(e) => setAcademicYear(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-bold text-slate-800"
+                className="w-full border border-slate-300 rounded-md px-2 py-1.5 bg-white font-bold text-slate-800 text-xs"
               >
                 {SESSIONS_LIST.map((s) => (
                   <option key={s} value={s}>
@@ -241,7 +241,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
+              <label className="block font-bold text-slate-700 mb-0.5">
                 {lang === 'hi' ? '3. क्रमांक (Roll No)' : '3. Roll No'}
               </label>
               <input
@@ -249,72 +249,72 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 placeholder={lang === 'hi' ? 'स्वतः जुड़ेगा' : 'Auto'}
                 value={rollNo}
                 onChange={(e) => setRollNo(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono font-bold"
+                className="w-full border border-slate-300 rounded-md px-2 py-1.5 font-mono font-bold text-xs"
               />
             </div>
           </div>
 
           {/* Row 2: Student Name & Father's Name (Typed in English) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
-                {lang === 'hi' ? '4. विद्यार्थी का नाम (English में)' : '4. Student Name (in English)'} <span className="text-red-500">*</span>
+              <label className="block font-bold text-slate-700 mb-0.5">
+                {lang === 'hi' ? '4. विद्यार्थी का नाम' : '4. Student Name'} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Rahul, Janhvi, Saumya"
+                placeholder="e.g. Rahul, Janhvi"
                 value={studentName}
                 onChange={(e) => setStudentName(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 font-semibold"
+                className="w-full border border-slate-300 rounded-md px-2.5 py-1.5 font-semibold text-xs"
               />
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
-                {lang === 'hi' ? '5. पिता का नाम (English में)' : "5. Father's Name (in English)"} <span className="text-red-500">*</span>
+              <label className="block font-bold text-slate-700 mb-0.5">
+                {lang === 'hi' ? '5. पिता का नाम' : "5. Father's Name"} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Vikas Kumar, Manjeet"
+                placeholder="e.g. Vikas Kumar"
                 value={fatherName}
                 onChange={(e) => setFatherName(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 font-semibold"
+                className="w-full border border-slate-300 rounded-md px-2.5 py-1.5 font-semibold text-xs"
               />
             </div>
           </div>
 
           {/* Row 3: Village & Mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-0.5">
                 <label className="font-bold text-slate-700">
-                  {lang === 'hi' ? '6. पता-गाँव (Village)' : '6. Village / Address'} <span className="text-red-500">*</span>
+                  {lang === 'hi' ? '6. पता-गाँव' : '6. Village'} <span className="text-red-500">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsCustomVillage(!isCustomVillage)}
-                  className="text-xs text-blue-600 font-bold hover:underline"
+                  className="text-[11px] text-blue-600 font-bold hover:underline"
                 >
                   {isCustomVillage
-                    ? lang === 'hi' ? 'सूची से चुनें' : 'Choose from list'
-                    : lang === 'hi' ? '+ अन्य लिखें' : '+ Other'}
+                    ? lang === 'hi' ? 'सूची से चुनें' : 'Choose list'
+                    : lang === 'hi' ? '+ अन्य' : '+ Other'}
                 </button>
               </div>
               {isCustomVillage ? (
                 <input
                   type="text"
-                  placeholder="Type village name in English..."
+                  placeholder="Type village name..."
                   value={customVillage}
                   onChange={(e) => setCustomVillage(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 font-semibold"
+                  className="w-full border border-slate-300 rounded-md px-2.5 py-1.5 font-semibold text-xs"
                 />
               ) : (
                 <select
                   value={village}
                   onChange={(e) => setVillage(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white font-semibold text-slate-800"
+                  className="w-full border border-slate-300 rounded-md px-2 py-1.5 bg-white font-semibold text-slate-800 text-xs"
                 >
                   {COMMON_VILLAGES.map((v) => (
                     <option key={v} value={v}>
@@ -326,8 +326,8 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">
-                {lang === 'hi' ? '7. मोबाइल नं. (10 Digits)' : '7. Mobile Number'}
+              <label className="block font-bold text-slate-700 mb-0.5">
+                {lang === 'hi' ? '7. मोबाइल नं. (10 अंक)' : '7. Mobile (10 Digits)'}
               </label>
               <input
                 type="tel"
@@ -335,21 +335,21 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 maxLength={10}
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono font-bold"
+                className="w-full border border-slate-300 rounded-md px-2.5 py-1.5 font-mono font-bold text-xs"
               />
             </div>
           </div>
 
           {/* Row 4: Joining Month & Previous Class Due */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-50/50 p-3.5 rounded-xl border border-amber-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-amber-50/50 p-2.5 rounded-lg border border-amber-200">
             <div>
-              <label className="block font-bold text-amber-900 mb-1">
-                {lang === 'hi' ? '8. दाखिला माह (Joined Month)' : '8. Joining Month'}
+              <label className="block font-bold text-amber-900 mb-0.5">
+                {lang === 'hi' ? '8. दाखिला माह' : '8. Joining Month'}
               </label>
               <select
                 value={joinedMonth}
                 onChange={(e) => setJoinedMonth(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-3 py-2 bg-white font-bold text-amber-900"
+                className="w-full border border-amber-300 rounded-md px-2 py-1 bg-white font-bold text-amber-900 text-xs"
               >
                 {ACADEMIC_MONTHS.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -357,37 +357,37 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[11px] text-amber-700 mt-0.5">
+              <p className="text-[10px] text-amber-700 mt-0.5">
                 {lang === 'hi'
-                  ? '* दाखिले से पहले के महीनों की फीस नहीं ली जाएगी'
-                  : '* Uncharged before joining month'}
+                  ? '* दाखिले पूर्व महीनों की फीस शून्य'
+                  : '* Uncharged before joining'}
               </p>
             </div>
 
             <div>
-              <label className="block font-bold text-amber-900 mb-1">
-                {lang === 'hi' ? '9. पिछली कक्षा का बकाया (Old Due ₹)' : '9. Previous Class Due (₹)'}
+              <label className="block font-bold text-amber-900 mb-0.5">
+                {lang === 'hi' ? '9. पिछला बकाया (Old Due ₹)' : '9. Previous Due (₹)'}
               </label>
               <input
                 type="number"
                 min="0"
                 value={previousClassDue}
                 onChange={(e) => setPreviousClassDue(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-3 py-2 font-mono font-bold text-amber-900"
+                className="w-full border border-amber-300 rounded-md px-2 py-1 font-mono font-bold text-amber-900 text-xs"
                 placeholder="0"
               />
-              <p className="text-[11px] text-amber-700 mt-0.5">
+              <p className="text-[10px] text-amber-700 mt-0.5">
                 {lang === 'hi'
-                  ? '* पुरानी कक्षा का बचा हुआ बकाया यहाँ दर्ज करें'
-                  : '* Carried-forward dues from older class'}
+                  ? '* पुरानी कक्षा का बकाया'
+                  : '* Carried dues from older class'}
               </p>
             </div>
           </div>
 
           {/* Row 5: Admission Fee Status */}
-          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-            <div className="font-bold text-slate-800 flex items-center justify-between">
-              <span>{lang === 'hi' ? '10. प्रवेश शुल्क स्थिति' : '10. Admission Fee Status'}</span>
+          <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+            <div className="font-bold text-slate-800 flex items-center justify-between text-xs">
+              <span>{lang === 'hi' ? '10. प्रवेश शुल्क स्थिति' : '10. Admission Fee'}</span>
               <label className="flex items-center gap-1.5 cursor-pointer text-blue-900 font-extrabold text-[11px]">
                 <input
                   type="checkbox"
@@ -400,29 +400,29 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
             </div>
 
             {!isFreeAdmission && (
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-2 gap-2 pt-0.5">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                    {lang === 'hi' ? 'स्थिति (Status)' : 'Status'}
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">
+                    {lang === 'hi' ? 'स्थिति' : 'Status'}
                   </label>
                   <select
                     value={admissionStatus}
                     onChange={(e) => setAdmissionStatus(e.target.value as any)}
-                    className="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white font-semibold text-xs"
+                    className="w-full border border-slate-300 rounded-md px-2 py-1 bg-white font-semibold text-xs"
                   >
                     <option value="PAID">{lang === 'hi' ? 'जमा (PAID)' : 'PAID'}</option>
                     <option value="PENDING">{lang === 'hi' ? 'बाकी (PENDING)' : 'PENDING'}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                    {lang === 'hi' ? 'राशि (Amount ₹)' : 'Amount (₹)'}
+                  <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">
+                    {lang === 'hi' ? 'राशि (₹)' : 'Amount (₹)'}
                   </label>
                   <input
                     type="number"
                     value={admissionAmount}
                     onChange={(e) => setAdmissionAmount(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-xs"
+                    className="w-full border border-slate-300 rounded-md px-2 py-1 font-mono font-bold text-xs"
                   />
                 </div>
               </div>
@@ -431,8 +431,8 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
 
           {/* If Editing, Show Student Management Actions (Mark Left vs Permanent Delete) */}
           {isEditing && initialData && (
-            <div className="p-3.5 bg-slate-100 rounded-xl border border-slate-200 space-y-2">
-              <span className="block font-bold text-xs text-slate-700 uppercase">
+            <div className="p-2.5 bg-slate-100 rounded-lg border border-slate-200 space-y-1.5">
+              <span className="block font-bold text-[11px] text-slate-700 uppercase">
                 {lang === 'hi' ? 'विद्यार्थी स्थिति एवं हटाने के विकल्प' : 'Student Status & Removal Options'}
               </span>
               <div className="flex flex-wrap items-center gap-2">
@@ -440,7 +440,7 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   type="button"
                   onClick={handleToggleStatus}
                   disabled={isSubmitting}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition ${
                     status === 'ACTIVE'
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -448,13 +448,13 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                 >
                   {status === 'ACTIVE' ? (
                     <>
-                      <UserMinus size={14} />
-                      <span>{lang === 'hi' ? 'स्कूल छोड़ दिया (Mark Left / TC)' : 'Mark Left / TC'}</span>
+                      <UserMinus size={13} />
+                      <span>{lang === 'hi' ? 'स्कूल छोड़ दिया (Mark Left)' : 'Mark Left'}</span>
                     </>
                   ) : (
                     <>
-                      <UserCheck size={14} />
-                      <span>{lang === 'hi' ? 'पुनः सक्रिय करें (Mark Active)' : 'Mark Active'}</span>
+                      <UserCheck size={13} />
+                      <span>{lang === 'hi' ? 'पुनः सक्रिय करें' : 'Mark Active'}</span>
                     </>
                   )}
                 </button>
@@ -463,42 +463,37 @@ export const StudentFormModal: React.FC<StudentFormModalProps> = ({
                   type="button"
                   onClick={handleDeletePermanently}
                   disabled={isSubmitting}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition ml-auto"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition ml-auto"
                 >
-                  <Trash2 size={14} />
-                  <span>{lang === 'hi' ? 'हमेशा के लिए हटाएं (Delete)' : 'Delete Permanently'}</span>
+                  <Trash2 size={13} />
+                  <span>{lang === 'hi' ? 'हटाएं (Delete)' : 'Delete'}</span>
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500">
-                {lang === 'hi'
-                  ? '• स्कूल छोड़ने पर बच्चे का पुराना रिकॉर्ड व बकाया सुरक्षित रहता है।\n• हमेशा के लिए हटाने पर सारा रिकॉर्ड मिट जाता है।'
-                  : '• Mark Left preserves past receipts and unpaid dues. Permanent Delete wipes all records.'}
-              </p>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-2">
+          <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 font-bold hover:bg-slate-100 transition"
+              className="px-3.5 py-1.5 border border-slate-300 rounded-lg text-slate-700 font-bold hover:bg-slate-100 transition text-xs"
             >
               {t('close')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-extrabold rounded-xl shadow-md transition"
+              className="px-5 py-1.5 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-extrabold rounded-lg shadow-sm transition text-xs"
             >
               {isSubmitting
                 ? lang === 'hi'
                   ? 'सुरक्षित हो रहा है...'
                   : 'Saving...'
                 : lang === 'hi'
-                ? 'सुरक्षित करें (Save Student)'
-                : 'Save Student'}
+                ? 'सुरक्षित करें (Save)'
+                : 'Save'}
             </button>
           </div>
         </form>

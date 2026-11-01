@@ -24,32 +24,32 @@ export const RegisterGrid: React.FC<RegisterGridProps> = ({
   const { lang, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-300 shadow-md overflow-hidden">
-      <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div className="overflow-x-auto max-h-[calc(100vh-250px)] overflow-y-auto">
         <table className="w-full text-xs border-collapse">
           <thead>
-            <tr className="bg-slate-800 text-white border-b-2 border-slate-900 sticky top-0 z-30 text-[11px] font-black uppercase tracking-wider shadow-sm">
-              <th className="py-2.5 px-3 text-center border-r border-slate-700 w-12 sticky left-0 bg-slate-800 z-20">
+            <tr className="bg-slate-800 text-white border-b border-slate-900 sticky top-0 z-30 text-[11px] font-bold uppercase tracking-wide">
+              <th className="py-2 px-2.5 text-center border-r border-slate-700/80 w-11 sticky left-0 bg-slate-800 z-20">
                 {t('rollNo')}
               </th>
-              <th className="py-2.5 px-3 text-left border-r border-slate-700 min-w-[140px] sticky left-12 bg-slate-800 z-20">
+              <th className="py-2 px-2.5 text-left border-r border-slate-700/80 min-w-[130px] sticky left-11 bg-slate-800 z-20">
                 {t('studentName')}
               </th>
-              <th className="py-2.5 px-3 text-left border-r border-slate-700 min-w-[120px]">
+              <th className="py-2 px-2.5 text-left border-r border-slate-700/80 min-w-[110px]">
                 {t('fatherName')}
               </th>
-              <th className="py-2.5 px-3 text-left border-r border-slate-700 min-w-[100px]">
+              <th className="py-2 px-2 text-left border-r border-slate-700/80 min-w-[90px]">
                 {t('village')}
               </th>
-              <th className="py-2.5 px-3 text-left border-r border-slate-700 min-w-[95px]">
+              <th className="py-2 px-2 text-left border-r border-slate-700/80 min-w-[85px]">
                 {t('mobile')}
               </th>
-              <th className="py-2.5 px-3 text-center border-r border-slate-700 min-w-[85px]">
+              <th className="py-2 px-2 text-center border-r border-slate-700/80 min-w-[80px]">
                 {t('admissionFee')}
               </th>
 
-              {/* CRITICAL FEATURE 5: Red Old Due (पिछला बकाया) Column */}
-              <th className="py-2.5 px-3 text-center border-r border-red-900 min-w-[100px] bg-red-950 text-red-200">
+              {/* Red Old Due (पिछला बकाया) Column */}
+              <th className="py-2 px-2 text-center border-r border-red-900 min-w-[90px] bg-red-950/90 text-red-200">
                 {t('oldBalance')}
               </th>
 
@@ -57,8 +57,8 @@ export const RegisterGrid: React.FC<RegisterGridProps> = ({
               {FEE_HEADS_LIST.filter((h) => h.id !== 'ADMISSION').map((h) => (
                 <th
                   key={h.id}
-                  className={`py-2.5 px-2 text-center border-r border-slate-700 min-w-[68px] ${
-                    h.isExam ? 'bg-amber-800 text-amber-100 font-black' : ''
+                  className={`py-2 px-1.5 text-center border-r border-slate-700/80 min-w-[62px] ${
+                    h.isExam ? 'bg-amber-800 text-amber-100 font-extrabold' : ''
                   }`}
                   title={lang === 'hi' ? h.labelHi : h.labelEn}
                 >
@@ -66,7 +66,7 @@ export const RegisterGrid: React.FC<RegisterGridProps> = ({
                 </th>
               ))}
 
-              <th className="py-2.5 px-3 text-center min-w-[140px] sticky right-0 bg-slate-800 z-20">
+              <th className="py-2 px-2.5 text-center min-w-[125px] sticky right-0 bg-slate-800 z-20">
                 {t('actions')}
               </th>
             </tr>
@@ -266,13 +266,13 @@ export const RegisterGrid: React.FC<RegisterGridProps> = ({
                   })}
 
                   {/* Actions Column */}
-                  <td className="py-2 px-2 text-center sticky right-0 bg-white group-hover:bg-amber-50/40 z-10 shadow-l">
-                    <div className="flex items-center justify-center gap-1.5">
+                  <td className="py-1.5 px-2 text-center sticky right-0 bg-white group-hover:bg-amber-50/40 z-10 border-l border-slate-200">
+                    <div className="flex items-center justify-center gap-1">
                       <button
                         onClick={() => onPayFee(st)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-lg shadow-sm transition active:scale-95"
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white font-bold text-[11px] rounded-md shadow-2xs transition active:scale-95"
                       >
-                        <CreditCard size={13} />
+                        <CreditCard size={12} />
                         <span>{t('payFee')}</span>
                       </button>
 
@@ -282,20 +282,20 @@ export const RegisterGrid: React.FC<RegisterGridProps> = ({
                           href={waUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg transition"
+                          className="p-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 transition"
                           title={lang === 'hi' ? 'व्हाट्सएप पर बकाया भेजें' : 'Send Due on WhatsApp'}
                         >
-                          <MessageSquare size={14} />
+                          <MessageSquare size={13} />
                         </a>
                       )}
 
                       {isAdmin && onEditStudent && (
                         <button
                           onClick={() => onEditStudent(st)}
-                          className="p-1.5 hover:bg-slate-200 text-slate-600 rounded-lg transition"
+                          className="p-1 hover:bg-slate-100 text-slate-500 hover:text-slate-800 rounded-md transition"
                           title={lang === 'hi' ? 'एडिट करें' : 'Edit Student'}
                         >
-                          <Edit3 size={14} />
+                          <Edit3 size={13} />
                         </button>
                       )}
                     </div>

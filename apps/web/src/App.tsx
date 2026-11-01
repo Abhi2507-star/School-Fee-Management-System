@@ -281,23 +281,23 @@ function MainApp() {
       </header>
 
       {/* Main Body */}
-      <main className="max-w-7xl w-full mx-auto p-4 flex-1">
+      <main className="max-w-7xl w-full mx-auto p-3 md:p-4 flex-1">
         {/* Register Grid View (Shown for Collector always, and Admin on Register Tab) */}
         {(!isAdmin || adminTab === 'register') && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Top Controls: Class Selector Buttons, Session Dropdown, Status Filter, Search & Add Student */}
-            <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-slate-300 shadow-md space-y-3 sticky top-[57px] md:top-[61px] z-20">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-white/95 backdrop-blur-md p-3 md:p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-2.5 sticky top-[54px] md:top-[58px] z-20">
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
                 {/* Class Selector Buttons (LKG to Class 12) */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+                <div className="flex items-center gap-1 overflow-x-auto pb-0.5 max-w-full">
                   {CLASSES_LIST.map((cls) => (
                     <button
                       key={cls}
                       onClick={() => setSelectedClass(cls)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap shadow-xs ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition whitespace-nowrap shadow-2xs ${
                         selectedClass === cls
-                          ? 'bg-orange-600 text-white shadow-md scale-105'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                          ? 'bg-orange-600 text-white shadow-xs scale-102'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
                       }`}
                     >
                       {getClassShortLabel(cls)}
@@ -308,13 +308,13 @@ function MainApp() {
                 {/* Session Switcher & Status Filter */}
                 <div className="flex items-center gap-2 text-xs">
                   {/* Session Dropdown */}
-                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1">
-                    <Calendar size={14} className="text-slate-500" />
-                    <span className="font-bold text-slate-600">{lang === 'hi' ? 'सत्र:' : 'Session:'}</span>
+                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1">
+                    <Calendar size={13} className="text-slate-500" />
+                    <span className="font-semibold text-slate-600">{lang === 'hi' ? 'सत्र:' : 'Session:'}</span>
                     <select
                       value={selectedSession}
                       onChange={(e) => setSelectedSession(e.target.value)}
-                      className="bg-transparent font-bold text-slate-900 focus:outline-none"
+                      className="bg-transparent font-bold text-slate-800 focus:outline-none"
                     >
                       {SESSIONS_LIST.map((s) => (
                         <option key={s} value={s}>
@@ -326,12 +326,12 @@ function MainApp() {
                   </div>
 
                   {/* Status Filter (Active vs Left / TC) */}
-                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1">
-                    <Filter size={14} className="text-slate-500" />
+                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1">
+                    <Filter size={13} className="text-slate-500" />
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value as any)}
-                      className="bg-transparent font-bold text-slate-900 focus:outline-none"
+                      className="bg-transparent font-bold text-slate-800 focus:outline-none"
                     >
                       <option value="ACTIVE">{t('activeStudents')}</option>
                       <option value="LEFT">{t('leftStudents')}</option>
@@ -342,23 +342,23 @@ function MainApp() {
               </div>
 
               {/* Search Bar & Add Student Button */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-                <div className="relative flex-1 min-w-[260px] max-w-lg">
+              <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
+                <div className="relative flex-1 min-w-[240px] max-w-md">
                   <Search
-                    size={18}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                   />
                   <input
                     type="text"
                     placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl bg-slate-50 focus:bg-white text-xs font-semibold text-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-9 pr-7 py-1.5 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-1.5 focus:ring-orange-500"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600"
                     >
                       ✕
                     </button>
@@ -368,10 +368,10 @@ function MainApp() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={loadStudents}
-                    className="p-2 border border-slate-300 rounded-xl hover:bg-slate-100 text-slate-600 transition"
+                    className="p-1.5 border border-slate-300 rounded-lg hover:bg-slate-100 text-slate-600 transition"
                     title={lang === 'hi' ? 'ताज़ा करें' : 'Refresh'}
                   >
-                    <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                    <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
                   </button>
 
                   {/* Prominent "+ Add New Student" Button */}
@@ -380,9 +380,9 @@ function MainApp() {
                       setEditingStudent(null);
                       setShowStudentForm(true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-xs font-extrabold rounded-xl shadow-sm transition active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold rounded-lg shadow-xs transition active:scale-95"
                   >
-                    <UserPlus size={15} />
+                    <UserPlus size={14} />
                     <span>{t('addStudent')}</span>
                   </button>
                 </div>
