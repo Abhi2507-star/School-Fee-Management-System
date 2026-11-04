@@ -8,7 +8,12 @@ export function getCsrfToken(): string {
   return csrfTokenMemory;
 }
 
-const API_BASE_URL = String((import.meta as any).env?.VITE_API_URL || '').replace(/\/+$/, '');
+const API_BASE_URL = String(
+  (import.meta as any).env?.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    ? 'https://svss-fee-management-api.onrender.com'
+    : '')
+).replace(/\/+$/, '');
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
