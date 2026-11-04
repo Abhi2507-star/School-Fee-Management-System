@@ -32,7 +32,10 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
 
   if (!response.ok) {
     const errBody = await response.json().catch(() => ({}));
-    if (response.status === 401 && path !== '/auth/login' && path !== '/auth/me') {
+    if (
+      response.status === 401 &&
+      !['/auth/login', '/auth/me', '/auth/pin', '/settings/pins'].includes(path)
+    ) {
       csrfTokenMemory = '';
       if (typeof window !== 'undefined') {
         window.dispatchEvent(

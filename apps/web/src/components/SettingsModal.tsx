@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { apiRequest } from '../services/api';
-import { KeyRound, Lock, CheckCircle2, AlertCircle, X, ShieldAlert } from 'lucide-react';
+import { KeyRound, Lock, CheckCircle2, AlertCircle, X, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -15,6 +15,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [newAdminPin, setNewAdminPin] = useState('');
   const [confirmAdminPin, setConfirmAdminPin] = useState('');
   const [newCollectorPin, setNewCollectorPin] = useState('');
+
+  const [showCurrentPin, setShowCurrentPin] = useState(false);
+  const [showNewPin, setShowNewPin] = useState(false);
+  const [showCollectorPin, setShowCollectorPin] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -32,9 +36,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       return;
     }
 
-    if (newAdminPin && newAdminPin !== confirmAdminPin) {
-      setErrorMsg(lang === 'hi' ? 'नया एडमिन पिन और पुष्टि पिन मेल नहीं खा रहे हैं।' : 'New Admin PIN and confirmation do not match.');
-      return;
+    if (newAdminPin) {
+      if (newAdminPin.trim().length < 4) {
+        setErrorMsg(lang === 'hi' ? 'नया एडमिन पिन कम से कम 4 अंकों का होना चाहिए।' : 'New Admin PIN must be at least 4 digits.');
+        return;
+      }
+      if (newAdminPin !== confirmAdminPin) {
+        setErrorMsg(lang === 'hi' ? 'नया एडमिन पिन और पुष्टि पिन मेल नहीं खा रहे हैं।' : 'New Admin PIN and confirmation do not match.');
+        return;
+      }
+    }
+
+    if (newCollectorPin) {
+      if (newCollectorPin.trim().length < 4) {
+        setErrorMsg(lang === 'hi' ? 'नया कलेक्टर पिन कम से कम 4 अंकों का होना चाहिए।' : 'New Collector PIN must be at least 4 digits.');
+        return;
+      }
     }
 
     if (!newAdminPin && !newCollectorPin) {
@@ -112,30 +129,50 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* Current Admin PIN Verification */}
           <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
-            <label className="block text-xs font-black text-slate-800 flex items-center gap-1.5">
-              <ShieldAlert size={13} className="text-amber-600" />
-              <span>{lang === 'hi' ? '1. वर्तमान एडमिन पिन' : '1. Current Admin PIN'}</span>
-              <span className="text-red-500">*</span>
+            <label className="block text-xs font-black text-slate-800 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <ShieldAlert size={13} className="text-amber-600" />
+                <span>{lang === 'hi' ? '1. वर्तमान एडमिन पिन' : '1. Current Admin PIN'}</span>
+                <span className="text-red-500">*</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowCurrentPin(!showCurrentPin)}
+                className="text-[10px] text-slate-500 hover:text-slate-800 flex items-center gap-0.5"
+              >
+                {showCurrentPin ? <EyeOff size={12} /> : <Eye size={12} />}
+                <span>{showCurrentPin ? (lang === 'hi' ? 'छुपाएं' : 'Hide') : (lang === 'hi' ? 'देखें' : 'Show')}</span>
+              </button>
             </label>
             <input
-              type="password"
+              type={showCurrentPin ? 'text' : 'password'}
               required
               maxLength={8}
               value={currentAdminPin}
               onChange={(e) => setCurrentAdminPin(e.target.value)}
-              placeholder={lang === 'hi' ? 'वर्तमान एडमिन पिन' : 'Enter current PIN'}
+              placeholder={lang === 'hi' ? 'वर्तमान एडमिन पिन दर्ज करें' : 'Enter current PIN'}
               className="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <p className="text-[10px] text-slate-500">
-              {lang === 'hi' ? '* सत्यापन हेतु वर्तमान एडमिन पिन आवश्यक है।' : '* Required for authorization.'}
+              {lang === 'hi' ? '* प्राधिकरण हेतु वर्तमान एडमिन पिन दर्ज करें।' : '* Required for authorization.'}
             </p>
           </div>
 
           {/* Section: Change Admin PIN */}
           <div className="border border-indigo-100 bg-indigo-50/40 p-2.5 rounded-xl space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-black text-indigo-950">
-              <KeyRound size={13} className="text-indigo-600" />
-              <span>{lang === 'hi' ? '2. नया एडमिन पिन' : '2. New Admin PIN'}</span>
+            <div className="flex items-center justify-between text-xs font-black text-indigo-950">
+              <div className="flex items-center gap-1.5">
+                <KeyRound size={13} className="text-indigo-600" />
+                <span>{lang === 'hi' ? '2. नया एडमिन पिन' : '2. New Admin PIN'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewPin(!showNewPin)}
+                className="text-[10px] text-indigo-600 hover:text-indigo-900 flex items-center gap-0.5"
+              >
+                {showNewPin ? <EyeOff size={12} /> : <Eye size={12} />}
+                <span>{showNewPin ? (lang === 'hi' ? 'छुपाएं' : 'Hide') : (lang === 'hi' ? 'देखें' : 'Show')}</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -144,11 +181,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   {lang === 'hi' ? 'नया पिन' : 'New PIN'}
                 </label>
                 <input
-                  type="password"
+                  type={showNewPin ? 'text' : 'password'}
                   maxLength={8}
                   value={newAdminPin}
                   onChange={(e) => setNewAdminPin(e.target.value)}
-                  placeholder="e.g. 8888"
+                  placeholder="e.g. 9999"
                   className="w-full border border-indigo-200 rounded-lg px-2 py-1 text-xs font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -158,11 +195,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   {lang === 'hi' ? 'पिन पुष्टि' : 'Confirm'}
                 </label>
                 <input
-                  type="password"
+                  type={showNewPin ? 'text' : 'password'}
                   maxLength={8}
                   value={confirmAdminPin}
                   onChange={(e) => setConfirmAdminPin(e.target.value)}
-                  placeholder="e.g. 8888"
+                  placeholder="e.g. 9999"
                   className="w-full border border-indigo-200 rounded-lg px-2 py-1 text-xs font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -171,12 +208,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* Section: Change Fee Collector PIN */}
           <div className="border border-emerald-100 bg-emerald-50/40 p-2.5 rounded-xl space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-black text-emerald-950">
-              <KeyRound size={13} className="text-emerald-600" />
-              <span>{lang === 'hi' ? '3. नया कलेक्टर पिन' : '3. Collector PIN'}</span>
+            <div className="flex items-center justify-between text-xs font-black text-emerald-950">
+              <div className="flex items-center gap-1.5">
+                <KeyRound size={13} className="text-emerald-600" />
+                <span>{lang === 'hi' ? '3. नया कलेक्टर पिन' : '3. Collector PIN'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCollectorPin(!showCollectorPin)}
+                className="text-[10px] text-emerald-700 hover:text-emerald-900 flex items-center gap-0.5"
+              >
+                {showCollectorPin ? <EyeOff size={12} /> : <Eye size={12} />}
+                <span>{showCollectorPin ? (lang === 'hi' ? 'छुपाएं' : 'Hide') : (lang === 'hi' ? 'देखें' : 'Show')}</span>
+              </button>
             </div>
             <input
-              type="password"
+              type={showCollectorPin ? 'text' : 'password'}
               maxLength={8}
               value={newCollectorPin}
               onChange={(e) => setNewCollectorPin(e.target.value)}
@@ -185,8 +232,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             />
             <p className="text-[10px] text-emerald-800">
               {lang === 'hi'
-                ? '* केवल वही पिन भरें जिसे बदलना हो।'
-                : '* Leave blank if unchanged.'}
+                ? '* केवल वही पिन भरें जिसे बदलना हो (कम से कम 4 अंक)।'
+                : '* Leave blank if unchanged (min 4 digits).'}
             </p>
           </div>
 

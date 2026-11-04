@@ -9,21 +9,61 @@ import cors from 'cors';
 import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 
-// Security utilities for PIN hashing & verification
-const PIN_SALT = process.env.SESSION_SECRET || 'svss_production_pin_salt_sec_2026';
-
-export function hashPin(pin: string, role: string): string {
-  const salt = `${PIN_SALT}:${role.toLowerCase()}`;
-  return crypto.scryptSync(pin, salt, 32).toString('hex');
+// Security utilities for PIN hashing & verification (self-contained cryptographic salt)
+export function hashPin(pin: string, customSalt?: string): string {
+  const salt = customSalt || crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(pin, salt, 32).toString('hex');
+  return `${salt}:${hash}`;
 }
 
-export function verifyPinHash(inputPin: string, role: string, storedHash: string): boolean {
+export function verifyPinHash(inputPin: string, storedHash: string, role?: string): boolean {
   try {
-    const inputHash = hashPin(inputPin, role);
-    const bufA = Buffer.from(inputHash, 'hex');
-    const bufB = Buffer.from(storedHash, 'hex');
-    if (bufA.length !== bufB.length) return false;
-    return crypto.timingSafeEqual(bufA, bufB);
+    if (!inputPin || !storedHash) return false;
+    const cleanPin = String(inputPin).trim();
+
+    // 1. Standard format: salt:hash (self-contained, environment-independent)
+    if (storedHash.includes(':')) {
+      const parts = storedHash.split(':');
+      if (parts.length === 2) {
+        const [salt, expectedHash] = parts;
+        const computed = crypto.scryptSync(cleanPin, salt, 32).toString('hex');
+        const bufA = Buffer.from(computed, 'hex');
+        const bufB = Buffer.from(expectedHash, 'hex');
+        if (bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB)) {
+          return true;
+        }
+      }
+    }
+
+    // 2. Compatibility with legacy hashes in DB (e.g. single hex string)
+    const possibleSalts = [
+      process.env.SESSION_SECRET || '',
+      'svss_production_pin_salt_sec_2026',
+      `${process.env.SESSION_SECRET || ''}:admin`,
+      `${process.env.SESSION_SECRET || ''}:collector`,
+      'svss_production_pin_salt_sec_2026:admin',
+      'svss_production_pin_salt_sec_2026:collector',
+      role ? `${process.env.SESSION_SECRET || ''}:${role.toLowerCase()}` : '',
+      role ? `svss_production_pin_salt_sec_2026:${role.toLowerCase()}` : '',
+    ].filter(Boolean);
+
+    for (const salt of possibleSalts) {
+      try {
+        const computed = crypto.scryptSync(cleanPin, salt, 32).toString('hex');
+        const bufA = Buffer.from(computed, 'hex');
+        const bufB = Buffer.from(storedHash, 'hex');
+        if (bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB)) {
+          return true;
+        }
+      } catch {}
+    }
+
+    // 3. Plaintext fallback
+    if (storedHash === cleanPin) {
+      return true;
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -170,13 +210,9 @@ export function createApp(prisma: PrismaClient) {
 
     // Migration / Initial secure setup: if old plaintext setting exists, migrate it to hash
     const oldPlain = await prisma.appSetting.findUnique({ where: { key: `pin_${role}` } });
-    let initialPin = oldPlain?.value;
-    if (!initialPin) {
-      // Secure non-default random initial configuration or designated secure initial PIN
-      initialPin = role === 'admin' ? '8948' : '2507';
-    }
+    const initialPin = oldPlain?.value || (role === 'admin' ? '9999' : '1111');
 
-    const newHash = hashPin(initialPin, role);
+    const newHash = hashPin(initialPin);
     await prisma.appSetting.upsert({
       where: { key },
       update: { value: newHash },
@@ -214,8 +250,8 @@ export function createApp(prisma: PrismaClient) {
         getStoredPinHash('collector'),
       ]);
 
-      const isCollector = verifyPinHash(cleanPin, 'collector', collectorHash) || cleanPin === '2507' || cleanPin === '1111';
-      const isAdmin = verifyPinHash(cleanPin, 'admin', adminHash) || cleanPin === '8948' || cleanPin === '9999';
+      const isCollector = verifyPinHash(cleanPin, collectorHash, 'collector');
+      const isAdmin = verifyPinHash(cleanPin, adminHash, 'admin');
 
       if (isCollector) {
         resetRateLimit(clientIp);
@@ -264,7 +300,7 @@ export function createApp(prisma: PrismaClient) {
       const { current_admin_pin, new_admin_pin, new_collector_pin } = req.body || {};
       const adminHash = await getStoredPinHash('admin');
 
-      const isCurrentAdminValid = verifyPinHash(String(current_admin_pin || '').trim(), 'admin', adminHash);
+      const isCurrentAdminValid = verifyPinHash(String(current_admin_pin || '').trim(), adminHash, 'admin');
 
       if (!isCurrentAdminValid) {
         const failureStatus = recordFailedAttempt(clientIp);
@@ -284,7 +320,7 @@ export function createApp(prisma: PrismaClient) {
           res.status(400).json({ success: false, message: 'एडमिन पिन कम से कम 4 अंकों का होना चाहिए।' });
           return;
         }
-        const newAdminHash = hashPin(cleanAdmin, 'admin');
+        const newAdminHash = hashPin(cleanAdmin);
         await prisma.appSetting.upsert({
           where: { key: 'pin_admin_hash' },
           update: { value: newAdminHash },
@@ -298,7 +334,7 @@ export function createApp(prisma: PrismaClient) {
           res.status(400).json({ success: false, message: 'कलेक्टर पिन कम से कम 4 अंकों का होना चाहिए।' });
           return;
         }
-        const newCollectorHash = hashPin(cleanCollector, 'collector');
+        const newCollectorHash = hashPin(cleanCollector);
         await prisma.appSetting.upsert({
           where: { key: 'pin_collector_hash' },
           update: { value: newCollectorHash },
@@ -306,7 +342,10 @@ export function createApp(prisma: PrismaClient) {
         });
       }
 
-      res.json({ success: true, message: 'सुरक्षा पिन / पासवर्ड सफलतापूर्वक सुरक्षित और अपडेट कर दिया गया (PINs updated and securely hashed)!' });
+      res.json({
+        success: true,
+        message: 'सुरक्षा पिन / पासवर्ड सफलतापूर्वक सुरक्षित और अपडेट कर दिया गया (PINs updated and securely hashed)!',
+      });
     } catch (e) {
       next(e);
     }
